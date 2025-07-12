@@ -6,11 +6,10 @@ export class MockEndpointFactory implements EndpointFactory {
   create(
     curlInfo: CurlInfo,
     mockResponse: Record<string, unknown> | Array<unknown> | string | number | boolean,
-    outputDir: string
   ): MockEndpoint {
     return {
       method: curlInfo.method,
-      path: getRelativeEndpointPath(curlInfo, outputDir),
+      path: getRelativeEndpointPath(curlInfo),
       status: getDefaultStatusCode(curlInfo.method),
       body: mockResponse,
       delayMs: Math.floor(Math.random() * 200) + 50

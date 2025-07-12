@@ -56,7 +56,7 @@ export function parseCurlCommand(curlCommand: string): CurlInfo {
   }
 
   const dataMatch = cleanedCommand.match(/--data\s+'([^']+)'|--data\s+"([^"]+)"|--data\s+([^\s]+)|-d\s+'([^']+)'|-d\s+"([^"]+)"|-d\s+([^\s]+)/);
-  const data = dataMatch?.[1] || dataMatch?.[2] || dataMatch?.[3] || dataMatch?.[4] || dataMatch?.[5] || dataMatch?.[6];
+  const data = dataMatch?.[1] || dataMatch?.[2] || dataMatch?.[3] || dataMatch?.[4] || dataMatch?.[5] || dataMatch?.[6] || '';
 
   return {
     method,
