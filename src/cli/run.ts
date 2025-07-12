@@ -1,6 +1,6 @@
-import { createServer } from '../server/index.js';
-import { loadMockEndpoints } from '../server/loader.js';
-import { ServerOptions } from '../types/index.js';
+import { createServer } from '../server/';
+import { loadMockEndpoints } from '../server/loader';
+import { ServerOptions } from '../types/';
 import chalk from 'chalk';
 import { existsSync } from 'fs';
 

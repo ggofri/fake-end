@@ -2,8 +2,8 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { startServer } from './run.js';
-import { generateMockFromCurl } from './generate.js';
+import { startServer } from './run';
+import { generateMockFromCurl } from './generate/';
 
 const program = new Command();
 
