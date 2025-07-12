@@ -1,0 +1,89 @@
+import fs from 'fs/promises';
+import path from 'path';
+import yaml from 'js-yaml';
+import { CurlInfo, MockEndpoint } from '../types';
+
+export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string {
+  const { path: urlPath } = curlInfo;
+  
+  let filePath = urlPath.replace(/^\//, '').replace(/\/$/, '');
+  
+  filePath = filePath.replace(/\/:\w+/g, '');
+  filePath = filePath.replace(/\/\{\w+\}/g, '');
+  
+  if (!filePath) {
+    filePath = 'index';
+  }
+  
+  const pathParts = filePath.split('/');
+  const fileName = pathParts.pop() || 'index';
+  const dirPath = pathParts.length > 0 ? pathParts.join('/') : '';
+  
+  const fullDirPath = dirPath ? path.join(outputDir, dirPath) : outputDir;
+  return path.join(fullDirPath, `${fileName}.yaml`);
+}
+
+export function getRelativeEndpointPath(curlInfo: CurlInfo): string {
+  const { path: urlPath } = curlInfo;
+  
+  // Get the directory structure that will be created
+  let filePath = urlPath.replace(/^\//, '').replace(/\/$/, '');
+  filePath = filePath.replace(/\/:\w+/g, '');
+  filePath = filePath.replace(/\/\{\w+\}/g, '');
+  
+  if (!filePath) {
+    return urlPath;
+  }
+  
+  const pathParts = filePath.split('/');
+  const fileName = pathParts.pop() || 'index';
+  const dirPath = pathParts.length > 0 ? pathParts.join('/') : '';
+  
+  // Calculate the relative path by removing the directory structure from the full path
+  if (dirPath) {
+    const directoryPrefix = `/${dirPath}`;
+    if (urlPath.startsWith(directoryPrefix)) {
+      const relativePath = urlPath.substring(directoryPrefix.length);
+      return relativePath || `/${fileName}`;
+    }
+  }
+  
+  return urlPath;
+}
+
+export async function writeYamlFile(filePath: string, endpoints: MockEndpoint[]): Promise<void> {
+  const dirPath = path.dirname(filePath);
+  await fs.mkdir(dirPath, { recursive: true });
+  
+  let existingEndpoints: MockEndpoint[] = [];
+  try {
+    const existingContent = await fs.readFile(filePath, 'utf8');
+    const parsed = yaml.load(existingContent);
+    if (Array.isArray(parsed)) {
+      existingEndpoints = parsed;
+    }
+  } catch {
+    // ignore
+  }
+  
+  const mergedEndpoints = [...existingEndpoints];
+  for (const newEndpoint of endpoints) {
+    const existingIndex = mergedEndpoints.findIndex(
+      ep => ep.method === newEndpoint.method && ep.path === newEndpoint.path
+    );
+    
+    if (existingIndex >= 0) {
+      mergedEndpoints[existingIndex] = newEndpoint;
+    } else {
+      mergedEndpoints.push(newEndpoint);
+    }
+  }
+  
+  const yamlContent = yaml.dump(mergedEndpoints, {
+    indent: 2,
+    lineWidth: -1,
+    noRefs: true
+  });
+  
+  await fs.writeFile(filePath, yamlContent, 'utf8');
+}

@@ -1,6 +1,6 @@
 import express from "express";
 import chalk from "chalk";
-import { ParsedEndpoint, isValidMethod, validLowercaseMethods } from "../types/index.js";
+import { ParsedEndpoint, isValidMethod, validLowercaseMethods } from "../types/";
 
 export function createServer(endpoints: ParsedEndpoint[]) {
   const app = express();
@@ -10,7 +10,7 @@ export function createServer(endpoints: ParsedEndpoint[]) {
 
   for (const endpoint of endpoints) {
     if (!isValidMethod(endpoint.method.toUpperCase())) {
-      console.log(
+      console.error(
         chalk.red(endpoint.method),
         chalk.red(endpoint.fullPath),
         'is not a valid express endpoint',
@@ -76,12 +76,17 @@ export function createServer(endpoints: ParsedEndpoint[]) {
   return app;
 }
 
-function interpolateParams(obj: any, params: any, query: any, body: any): any {
+function interpolateParams(
+  obj: unknown, 
+  params: Record<string, unknown>, 
+  query: Record<string, unknown>, 
+  body: Record<string, unknown>
+): unknown {
   if (typeof obj === "string") {
     return obj
-      .replace(/:(\w+)/g, (match, key) => params[key] || match)
-      .replace(/\{\{query\.(\w+)\}\}/g, (match, key) => query[key] || match)
-      .replace(/\{\{body\.(\w+)\}\}/g, (match, key) => body[key] || match);
+      .replace(/:(\w+)/g, (match, key) => String(params[key] || match))
+      .replace(/\{\{query\.(\w+)\}\}/g, (match, key) => String(query[key] || match))
+      .replace(/\{\{body\.(\w+)\}\}/g, (match, key) => String(body[key] || match));
   }
 
   if (Array.isArray(obj)) {
@@ -89,7 +94,7 @@ function interpolateParams(obj: any, params: any, query: any, body: any): any {
   }
 
   if (obj && typeof obj === "object") {
-    const result: any = {};
+    const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       result[key] = interpolateParams(value, params, query, body);
     }

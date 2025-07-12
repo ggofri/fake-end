@@ -1,4 +1,4 @@
-export { createServer } from './server/index.js';
-export { loadMockEndpoints } from './server/loader.js';
-export { startServer } from './cli/run.js';
-export * from './types/index.js';
+export { createServer } from './server';
+export { loadMockEndpoints } from './server/loader';
+export { startServer } from './cli/run';
+export * from './types';

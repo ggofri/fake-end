@@ -1,8 +1,7 @@
 import { readFile } from 'fs/promises';
 import { glob } from 'glob';
 import * as yaml from 'js-yaml';
-import path from 'path';
-import { MockEndpoint, ParsedEndpoint } from '../types/index.js';
+import { MockEndpoint, ParsedEndpoint } from '../types/';
 import chalk from 'chalk';
 
 export async function loadMockEndpoints(mockDir: string): Promise<ParsedEndpoint[]> {
@@ -22,17 +21,32 @@ export async function loadMockEndpoints(mockDir: string): Promise<ParsedEndpoint
         continue;
       }
 
-      const relativePath = path.relative(mockDir, filePath);
-      const pathWithoutExt = relativePath.replace(/\.(yaml|yml)$/, '');
-      const basePath = pathWithoutExt === 'index' ? '' : `/${pathWithoutExt}`;
-
       for (const endpoint of parsedContent) {
         if (!isValidEndpoint(endpoint)) {
           console.warn(chalk.yellow(`⚠️  Invalid endpoint in ${filePath}:`, endpoint));
           continue;
         }
 
-        const fullPath = basePath + endpoint.path;
+        // Build the full path by combining the directory structure with the endpoint path
+        // Extract the relative path from the file path, handling both absolute and relative mockDir
+        const normalizedMockDir = mockDir.endsWith('/') ? mockDir : `${mockDir}/`;
+        let relativePath = filePath;
+        
+        // Handle absolute paths (from glob results)
+        if (filePath.includes(normalizedMockDir)) {
+          relativePath = filePath.split(normalizedMockDir)[1] || '';
+        } else {
+          // Handle case where mockDir might be relative but glob returns absolute
+          const absoluteMockDir = process.cwd() + '/' + normalizedMockDir;
+          if (filePath.includes(absoluteMockDir)) {
+            relativePath = filePath.split(absoluteMockDir)[1] || '';
+          }
+        }
+        
+        // Remove file extension and extract directory path
+        relativePath = relativePath.replace(/\.(yaml|yml)$/, '');
+        const directoryPath = relativePath.split('/').slice(0, -1).join('/');
+        const fullPath = directoryPath ? `/${directoryPath}${endpoint.path}` : endpoint.path;
 
         endpoints.push({
           ...endpoint,
@@ -48,10 +62,14 @@ export async function loadMockEndpoints(mockDir: string): Promise<ParsedEndpoint
   return endpoints;
 }
 
-function isValidEndpoint(endpoint: any): endpoint is MockEndpoint {
+function isValidEndpoint(endpoint: unknown): endpoint is MockEndpoint {
   return (
-    endpoint &&
+    !!endpoint &&
     typeof endpoint === 'object' &&
+    'method' in endpoint &&
+    'path' in endpoint &&
+    'status' in endpoint &&
+    'body' in endpoint &&
     typeof endpoint.method === 'string' &&
     ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(endpoint.method.toUpperCase()) &&
     typeof endpoint.path === 'string' &&
