@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
@@ -11,13 +11,15 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "dev": "tsx src/cli/index.ts",
-    "start": "node -r ./register.js dist/src/cli/index.js",
+    "dev": "tsx src/cli/index.ts --watch",
+    "start": "bun bin.js",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "test": "jest",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public"
+    "compile": "bun run build && bun build --compile ./dist/src/index.js --outfile fake-end",
+    "pack": "bun run compile && bun pm pack ./fake-end --filename ./dist/fake-end.tgz",
+    "prepublishOnly": "bun run pack",
+    "publish": "bun run prepublishOnly && bun publish --access public ./dist/fake-end.tgz"
   },
   "keywords": [
     "cli",
@@ -36,7 +38,8 @@
     "express": "^4.18.2",
     "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
-    "ts-morph": "^21.0.1"
+    "ts-morph": "^21.0.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
@@ -51,8 +54,5 @@
     "tsx": "^4.6.2",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.35.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
