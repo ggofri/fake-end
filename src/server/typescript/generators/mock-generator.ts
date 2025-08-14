@@ -1,4 +1,4 @@
-import { Node, InterfaceDeclaration, TypeNode } from 'ts-morph';
+import { Node, InterfaceDeclaration, TypeNode, PropertySignature } from 'ts-morph';
 import { 
   MAX_COUNT_VALUE, 
   MAX_ID_VALUE, 
@@ -9,6 +9,7 @@ import {
   ID_SUBSTRING_START,
   ID_SUBSTRING_LENGTH
 } from '@/constants';
+import { resolveMockValue } from '@/server/typescript/utils';
 
 export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): Record<string, unknown> {
   const mockData: Record<string, unknown> = {};
@@ -21,7 +22,7 @@ export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): 
       const isOptional = prop.hasQuestionToken();
       
       if (!isOptional) {
-        mockData[name] = generateMockValue(typeNode, name);
+        mockData[name] = generateMockValue(typeNode, name, prop);
       }
     }
   }
@@ -29,7 +30,16 @@ export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): 
   return mockData;
 }
 
-function generateMockValue(typeNode: TypeNode | undefined, propertyName: string): unknown {
+function generateMockValue(typeNode: TypeNode | undefined, propertyName: string, prop?: PropertySignature): unknown {
+  const mockValue = resolveMockValue(prop);
+  if (mockValue !== undefined) {
+    return mockValue;
+  }
+
+  return generateDefaultMockValue(typeNode, propertyName);
+}
+
+function generateDefaultMockValue(typeNode: TypeNode | undefined, propertyName: string): unknown {
   if (!typeNode) return null;
 
   const typeText = typeNode.getKindName();
@@ -38,7 +48,7 @@ function generateMockValue(typeNode: TypeNode | undefined, propertyName: string)
     case 'StringKeyword': return generateStringValue(propertyName);
     case 'NumberKeyword': return generateNumberValue(propertyName);
     case 'BooleanKeyword': return Math.random() < BOOLEAN_PROBABILITY;
-    case 'ArrayType': return [generateMockValue(typeNode.getFirstChild(), propertyName)];
+    case 'ArrayType': return [generateDefaultMockValue(typeNode.getFirstChild(), propertyName)];
     case 'TypeReference': return {};
     default: return null;
   }
