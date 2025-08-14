@@ -22,5 +22,5 @@ export interface ParsedEndpoint extends MockEndpoint {
 export interface ServerOptions {
   port: number;
   mockDir: string;
+  verbose?: boolean;
 };
-

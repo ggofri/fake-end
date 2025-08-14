@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
-import { CurlInfo, MockEndpoint, FileManager } from '../types';
-import { generateFilePath, writeYamlFile } from '../utils/file-utils';
+import { CurlInfo, MockEndpoint, FileManager } from '@/cli/generate/types';
+import { generateFilePath, writeYamlFile } from '@/cli/generate/utils/file-utils';
 
 export class FileOutputManager implements FileManager {
   async ensureOutputDirectory(outputPath: string): Promise<void> {

@@ -1,6 +1,7 @@
 import chalk from 'chalk';
-import { CurlInfo } from '../types';
+import { CurlInfo, isOllamaResponse, isRecordOfStrings } from '@/cli/generate/types';
 import { generateBasicMockResponse } from './mock-generator';
+import { OLLAMA_JSON_GROUP_INDEX } from '@/constants';
 
 export async function generateResponseWithOllama(curlInfo: CurlInfo, host: string, model: string): Promise<Record<string, unknown>> {
   try {
@@ -12,8 +13,8 @@ export async function generateResponseWithOllama(curlInfo: CurlInfo, host: strin
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: model,
-        prompt: prompt,
+        model,
+        prompt,
         stream: false,
         options: {
           temperature: 0.3,
@@ -26,13 +27,18 @@ export async function generateResponseWithOllama(curlInfo: CurlInfo, host: strin
       throw new Error(`Ollama request failed: ${response.status} ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result: unknown = await response.json();
+
+    if(!isOllamaResponse(result)) throw new Error('Invalid ollama response')
     
-    // Try to extract JSON from the response
     const jsonMatch = result.response.match(/```json\s*([\s\S]*?)\s*```|({[\s\S]*})/);
     if (jsonMatch) {
       try {
-        return JSON.parse(jsonMatch[1] || jsonMatch[2]);
+        const jsonString = jsonMatch[1] ?? jsonMatch[2];
+        const parsedString: unknown = JSON.parse(jsonString ?? '')
+        if (isRecordOfStrings(parsedString)) return parsedString
+          
+        throw new Error('Invalid JSON')
       } catch {
         console.log(chalk.yellow('⚠️  Could not parse Ollama JSON response, using fallback'));
         return generateBasicMockResponse(curlInfo);
@@ -57,7 +63,7 @@ Analyze this HTTP request and generate a realistic JSON response:
 
 Method: ${method}
 Path: ${path}
-Headers: ${JSON.stringify(headers, null, 2)}
+Headers: ${JSON.stringify(headers, null, OLLAMA_JSON_GROUP_INDEX)}
 ${data ? `Request Body: ${data}` : ''}
 
 Please generate a realistic JSON response that:

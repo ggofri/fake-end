@@ -1,15 +1,21 @@
-import { createServer } from '../server/';
-import { loadMockEndpoints } from '../server/loader';
-import { ServerOptions } from '../types/';
+import { createServer } from '@/server';
+import { loadMockEndpoints } from '@/server/loader';
+import { ServerOptions } from '@/types';
+import { setVerbose } from '@/utils';
+import { METHOD_PADDING_LENGTH } from '@/constants';
 import chalk from 'chalk';
 import { existsSync } from 'fs';
 
 export async function startServer(options: ServerOptions): Promise<void> {
-  const { port, mockDir } = options;
+  const { port, mockDir, verbose } = options;
+  
+  if (verbose) {
+    setVerbose(true);
+  }
 
   if (!existsSync(mockDir)) {
     console.error(chalk.red(`Mock directory "${mockDir}" does not exist.`));
-    console.log(chalk.yellow(`Please create the directory and add YAML files with your mock endpoints.`));
+    console.log(chalk.yellow(`Please create the directory and add YAML files or TypeScript interface files with your mock endpoints.`));
     process.exit(1);
   }
 
@@ -19,7 +25,7 @@ export async function startServer(options: ServerOptions): Promise<void> {
 
     if (endpoints.length === 0) {
       console.log(chalk.yellow(`⚠️  No mock endpoints found in ${mockDir}`));
-      console.log(chalk.gray('Create YAML files with your mock API definitions to get started.'));
+      console.log(chalk.gray('Create YAML files or TypeScript interface files with your mock API definitions to get started.'));
     } else {
       console.log(chalk.green(`✅ Loaded ${endpoints.length} mock endpoint${endpoints.length > 1 ? 's' : ''}`));
     }
@@ -33,7 +39,7 @@ export async function startServer(options: ServerOptions): Promise<void> {
         console.log(chalk.blue('\n📋 Available endpoints:'));
         endpoints.forEach(endpoint => {
           const methodColor = getMethodColor(endpoint.method);
-          console.log(`  ${methodColor(endpoint.method.padEnd(6))} ${chalk.gray(endpoint.fullPath)}`);
+          console.log(`  ${methodColor(endpoint.method.padEnd(METHOD_PADDING_LENGTH))} ${chalk.gray(endpoint.fullPath)}`);
         });
       }
 

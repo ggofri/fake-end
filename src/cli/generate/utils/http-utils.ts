@@ -1,15 +1,17 @@
+import { HTTP_STATUS } from '@/constants';
+
 export function getDefaultStatusCode(method: string): number {
   switch (method) {
     case 'GET':
-      return 200;
+      return HTTP_STATUS.OK;
     case 'POST':
-      return 201;
+      return HTTP_STATUS.CREATED;
     case 'PUT':
     case 'PATCH':
-      return 200;
+      return HTTP_STATUS.OK;
     case 'DELETE':
-      return 200;
+      return HTTP_STATUS.OK;
     default:
-      return 200;
+      return HTTP_STATUS.OK;
   }
 }

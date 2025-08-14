@@ -15,7 +15,7 @@ export async function promptUserForExecution(): Promise<boolean> {
     rl.question(chalk.yellow('\nChoose an option (1/2) [default: 1]: '), (answer) => {
       rl.close();
       
-      const choice = answer.trim() || '1';
+      const choice = answer.trim() ?? '1';
       const shouldExecute = choice === '1' || choice.toLowerCase() === 'execute' || choice.toLowerCase() === 'e';
       
       if (shouldExecute) {

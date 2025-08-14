@@ -1,5 +1,5 @@
-import { GenerateOptions, MockGeneratorDependencies } from '../types';
-import { parseCurlCommand, executeCurlCommand } from '../utils/';
+import { GenerateOptions, MockGeneratorDependencies } from '@/cli/generate/types';
+import { parseCurlCommand, executeCurlCommand } from '@/cli/generate/utils/';
 
 export class MockGenerator {
   constructor(private dependencies: MockGeneratorDependencies) {}

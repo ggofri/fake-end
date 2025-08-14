@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import { CurlInfo } from '../types';
+import { CurlInfo } from '@/cli/generate/types';
 import { ResponseGenerationStrategy } from './base';
-import { generateResponseWithOllama } from '../utils/ollama';
+import { generateResponseWithOllama } from '@/cli/generate/utils/ollama';
 
 export class OllamaResponseStrategy extends ResponseGenerationStrategy {
   constructor(
