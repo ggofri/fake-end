@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { Logger, MockEndpoint } from '../types';
+import { Logger, MockEndpoint } from '@/cli/generate/types';
 
 export class ConsoleLogger implements Logger {
   logAnalyzing(): void {

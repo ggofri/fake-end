@@ -5,6 +5,22 @@ import chalk from 'chalk';
 import { startServer } from './run';
 import { generateMockFromCurl } from './generate/';
 
+interface RunOptions {
+  port: string;
+  dir: string;
+  verbose?: boolean;
+}
+
+interface GenerateOptions {
+  curl?: string;
+  file?: string;
+  output: string;
+  execute?: boolean;
+  ollama?: boolean;
+  ollamaModel: string;
+  ollamaHost: string;
+}
+
 const program = new Command();
 
 program
@@ -17,11 +33,13 @@ program
   .description('Start the mock server')
   .option('-p, --port <port>', 'Port to run the server on', '4000')
   .option('-d, --dir <directory>', 'Directory containing mock YAML files', 'mock_server')
-  .action(async (options) => {
+  .option('-v, --verbose', 'Enable verbose logging')
+  .action(async (options: RunOptions) => {
     try {
       await startServer({
         port: parseInt(options.port, 10),
-        mockDir: options.dir
+        mockDir: options.dir,
+        verbose: options.verbose ?? false
       });
     } catch (error) {
       console.error(chalk.red('Error starting server:'), error);
@@ -40,7 +58,7 @@ program
   .option('--ollama', 'Use Ollama for AI-powered response generation (only used if --execute fails)')
   .option('--ollama-model <model>', 'Ollama model to use', 'qwen2.5-coder:0.5b')
   .option('--ollama-host <host>', 'Ollama host URL', 'http://localhost:11434')
-  .action(async (options) => {
+  .action(async (options: GenerateOptions) => {
     try {
       await generateMockFromCurl(options);
     } catch (error) {

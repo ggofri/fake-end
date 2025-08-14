@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import chalk from 'chalk';
+import { COMMAND_PREVIEW_LENGTH, BUFFER_SIZE_MB, ERROR_PREVIEW_LENGTH } from '@/constants';
 
 const execAsync = promisify(exec);
 
@@ -11,15 +12,15 @@ export async function executeCurlCommand(curlCommand: string): Promise<string | 
       .replace(/\s+/g, ' ')
       .trim();
 
-    console.log(chalk.gray(`   Running: ${cleanedCommand.substring(0, 100)}${cleanedCommand.length > 100 ? '...' : ''}`));
+    console.log(chalk.gray(`   Running: ${cleanedCommand.substring(0, COMMAND_PREVIEW_LENGTH)}${cleanedCommand.length > COMMAND_PREVIEW_LENGTH ? '...' : ''}`));
     
     const { stdout, stderr } = await execAsync(cleanedCommand, {
       timeout: 30000,
-      maxBuffer: 1024 * 1024,
+      maxBuffer: BUFFER_SIZE_MB * BUFFER_SIZE_MB,
     });
 
     if (stderr && !stdout) {
-      console.log(chalk.yellow(`⚠️  cURL stderr: ${stderr.substring(0, 200)}`));
+      console.log(chalk.yellow(`⚠️  cURL stderr: ${stderr.substring(0, ERROR_PREVIEW_LENGTH)}`));
       return null;
     }
 

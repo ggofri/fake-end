@@ -1,5 +1,5 @@
-import { CurlInfo, GenerateOptions, ResponseGenerator as IResponseGenerator } from '../types';
-import { ResponseStrategyFactory } from '../strategies/';
+import { CurlInfo, GenerateOptions, ResponseGenerator as IResponseGenerator } from '@/cli/generate/types';
+import { ResponseStrategyFactory } from '@/cli/generate/strategies/';
 
 export class ResponseGenerator implements IResponseGenerator {
   async generateResponse(

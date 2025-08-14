@@ -1,8 +1,8 @@
-import { MockGeneratorDependencies } from '../types';
+import { MockGeneratorDependencies } from '@/cli/generate/types';
 import { ConsoleLogger } from './logger';
 import { MockEndpointFactory } from './endpoint-factory';
 import { FileOutputManager } from './file-output';
-import { CurlCommandProcessor, ExecutionDecisionMaker, ResponseGenerator } from '../processors/';
+import { CurlCommandProcessor, ExecutionDecisionMaker, ResponseGenerator } from '@/cli/generate/processors/';
 
 export class DependencyContainer {
   static create(): MockGeneratorDependencies {

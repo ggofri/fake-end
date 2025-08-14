@@ -1,4 +1,4 @@
-import { GenerateOptions } from '../types';
+import { GenerateOptions } from '@/cli/generate/types';
 import { ResponseGenerationStrategy } from './base';
 import { ActualResponseStrategy } from './actual-response';
 import { OllamaResponseStrategy } from './ollama-response';
@@ -13,8 +13,8 @@ export class ResponseStrategyFactory {
       return new ActualResponseStrategy(actualResponse);
     } else if (options.ollama) {
       return new OllamaResponseStrategy(options.ollamaHost, options.ollamaModel);
-    } else {
+    } 
       return new BasicResponseStrategy();
-    }
+    
   }
 }

@@ -1,3 +1,5 @@
+export * from './typeguards'
+
 export interface CurlSource {
   curl?: string;
   file?: string;
@@ -53,7 +55,7 @@ export interface ExecutionDecider {
 }
 
 export interface ResponseStrategy {
-  generateResponse(curlInfo: CurlInfo): Promise<Record<string, unknown> | Array<unknown> | string | number | boolean>;
+  generateResponse(curlInfo: CurlInfo): Record<string, unknown> | Array<unknown> | string | number | boolean | Promise<Record<string, unknown> | Array<unknown> | string | number | boolean>;
 }
 
 export interface EndpointFactory {
@@ -80,4 +82,8 @@ export interface ResponseGenerator {
     actualResponse: string | null,
     options: GenerateOptions
   ): Promise<Record<string, unknown> | Array<unknown> | string | number | boolean>;
+}
+
+export interface OllamaResponse {
+  response: string;
 }

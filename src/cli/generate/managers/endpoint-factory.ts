@@ -1,6 +1,7 @@
-import { CurlInfo, MockEndpoint, EndpointFactory } from '../types';
-import { getDefaultStatusCode } from '../utils/http-utils';
-import { getRelativeEndpointPath } from '../utils/file-utils';
+import { CurlInfo, MockEndpoint, EndpointFactory } from '@/cli/generate/types';
+import { getDefaultStatusCode } from '@/cli/generate/utils/http-utils';
+import { getRelativeEndpointPath } from '@/cli/generate/utils/file-utils';
+import { DELAY_RANGE_MAX, DELAY_RANGE_MIN } from '@/constants';
 
 export class MockEndpointFactory implements EndpointFactory {
   create(
@@ -12,7 +13,7 @@ export class MockEndpointFactory implements EndpointFactory {
       path: getRelativeEndpointPath(curlInfo),
       status: getDefaultStatusCode(curlInfo.method),
       body: mockResponse,
-      delayMs: Math.floor(Math.random() * 200) + 50
+      delayMs: Math.floor(Math.random() * DELAY_RANGE_MAX) + DELAY_RANGE_MIN
     };
   }
 }

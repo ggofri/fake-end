@@ -1,5 +1,5 @@
-import { ExecutionConfig, ExecutionDecider } from '../types';
-import { promptUserForExecution } from '../utils/prompt';
+import { ExecutionConfig, ExecutionDecider } from '@/cli/generate/types';
+import { promptUserForExecution } from '@/cli/generate/utils/prompt';
 
 export class ExecutionDecisionMaker implements ExecutionDecider {
   async shouldExecuteCurl(config: ExecutionConfig): Promise<boolean> {
@@ -7,8 +7,8 @@ export class ExecutionDecisionMaker implements ExecutionDecider {
       return true;
     } else if (config.execute === false) {
       return false;
-    } else {
+    } 
       return await promptUserForExecution();
-    }
+    
   }
 }

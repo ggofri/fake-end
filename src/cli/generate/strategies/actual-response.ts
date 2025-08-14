@@ -1,12 +1,13 @@
 import chalk from 'chalk';
 import { ResponseGenerationStrategy } from './base';
+import { isRecordOfStrings } from '@/cli/generate/types';
 
 export class ActualResponseStrategy extends ResponseGenerationStrategy {
   constructor(private actualResponse: string) {
     super();
   }
 
-  async generateResponse(): Promise<Record<string, unknown> | Array<unknown> | string | number | boolean> {
+  generateResponse(): Record<string, unknown> | Array<unknown> | string | number | boolean {
     this.logGenerationStart('actual');
     console.log(chalk.green('✓ Using actual response from cURL execution'));
     
@@ -15,7 +16,10 @@ export class ActualResponseStrategy extends ResponseGenerationStrategy {
     }
     
     try {
-      return JSON.parse(this.actualResponse);
+      const parsedResponse: unknown = JSON.parse(this.actualResponse)
+
+      if (isRecordOfStrings(parsedResponse)) return parsedResponse
+      throw new Error("Invalid JSON")
     } catch {
       return this.actualResponse;
     }

@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
-import { CurlInfo, MockEndpoint } from '../types';
+import { CurlInfo, isArrayOfMockEndpoints, MockEndpoint } from '@/cli/generate/types';
 
 export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string {
   const { path: urlPath } = curlInfo;
@@ -16,7 +16,7 @@ export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string 
   }
   
   const pathParts = filePath.split('/');
-  const fileName = pathParts.pop() || 'index';
+  const fileName = pathParts.pop() ?? 'index';
   const dirPath = pathParts.length > 0 ? pathParts.join('/') : '';
   
   const fullDirPath = dirPath ? path.join(outputDir, dirPath) : outputDir;
@@ -26,7 +26,7 @@ export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string 
 export function getRelativeEndpointPath(curlInfo: CurlInfo): string {
   const { path: urlPath } = curlInfo;
   
-  // Get the directory structure that will be created
+  //Get the directory structure that will be created
   let filePath = urlPath.replace(/^\//, '').replace(/\/$/, '');
   filePath = filePath.replace(/\/:\w+/g, '');
   filePath = filePath.replace(/\/\{\w+\}/g, '');
@@ -36,15 +36,15 @@ export function getRelativeEndpointPath(curlInfo: CurlInfo): string {
   }
   
   const pathParts = filePath.split('/');
-  const fileName = pathParts.pop() || 'index';
+  const fileName = pathParts.pop() ?? 'index';
   const dirPath = pathParts.length > 0 ? pathParts.join('/') : '';
   
-  // Calculate the relative path by removing the directory structure from the full path
+  //Calculate the relative path by removing the directory structure from the full path
   if (dirPath) {
     const directoryPrefix = `/${dirPath}`;
     if (urlPath.startsWith(directoryPrefix)) {
       const relativePath = urlPath.substring(directoryPrefix.length);
-      return relativePath || `/${fileName}`;
+      return relativePath ?? `/${fileName}`;
     }
   }
   
@@ -59,11 +59,11 @@ export async function writeYamlFile(filePath: string, endpoints: MockEndpoint[])
   try {
     const existingContent = await fs.readFile(filePath, 'utf8');
     const parsed = yaml.load(existingContent);
-    if (Array.isArray(parsed)) {
+    if (isArrayOfMockEndpoints(parsed)) {
       existingEndpoints = parsed;
     }
   } catch {
-    // ignore
+    //ignore
   }
   
   const mergedEndpoints = [...existingEndpoints];
