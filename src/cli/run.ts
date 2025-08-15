@@ -1,8 +1,8 @@
 import { createServer } from '@/server';
 import { loadMockEndpoints } from '@/server/loader';
 import { ServerOptions } from '@/types';
-import { setVerbose } from '@/utils';
-import { METHOD_PADDING_LENGTH } from '@/constants';
+import { setVerbose, startServerWithPortFallback } from '@/utils';
+import { METHOD_PADDING_LENGTH, PORT_RETRY_MAX } from '@/constants';
 import chalk from 'chalk';
 import { existsSync } from 'fs';
 
@@ -32,19 +32,22 @@ export async function startServer(options: ServerOptions): Promise<void> {
 
     const app = createServer(endpoints);
 
-    app.listen(port, () => {
-      console.log(chalk.green(`🚀 Mock server running on http://localhost:${port}`));
-
-      if (endpoints.length > 0) {
-        console.log(chalk.blue('\n📋 Available endpoints:'));
-        endpoints.forEach(endpoint => {
-          const methodColor = getMethodColor(endpoint.method);
-          console.log(`  ${methodColor(endpoint.method.padEnd(METHOD_PADDING_LENGTH))} ${chalk.gray(endpoint.fullPath)}`);
-        });
-      }
-
-      console.log(chalk.gray('\nPress Ctrl+C to stop the server'));
+    const portResult = await startServerWithPortFallback(app, port, PORT_RETRY_MAX, {
+      warn: (msg) => console.log(chalk.yellow(msg)),
+      info: (msg) => console.log(chalk.blue(msg))
     });
+
+    console.log(chalk.green(`🚀 Mock server running on http://localhost:${portResult.port}`));
+
+    if (endpoints.length > 0) {
+      console.log(chalk.blue('\n📋 Available endpoints:'));
+      endpoints.forEach(endpoint => {
+        const methodColor = getMethodColor(endpoint.method);
+        console.log(`  ${methodColor(endpoint.method.padEnd(METHOD_PADDING_LENGTH))} ${chalk.gray(endpoint.fullPath)}`);
+      });
+    }
+
+    console.log(chalk.gray('\nPress Ctrl+C to stop the server'));
 
   } catch (error) {
     console.error(chalk.red('Failed to start server:'), error);

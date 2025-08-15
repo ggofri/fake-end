@@ -10,7 +10,7 @@ export interface MockEndpoint {
   method: validMethods;
   path: string;
   status: number;
-  body: unknown;
+  body?: unknown;
   delayMs?: number;
 };
 

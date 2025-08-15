@@ -1,10 +1,8 @@
 import { readFile } from 'fs/promises';
 import { glob } from 'glob';
-import { Project } from 'ts-morph';
 import { ParsedEndpoint } from '@/types';
-import { 
-  createTypeScriptProject, 
-  extractDefaultInterface,
+import {
+  parseInterfaceWithCache,
   generateMockFromInterface,
   extractEndpointInfoFromPath,
   isValidTypeScriptEndpoint
@@ -17,11 +15,10 @@ export async function loadTypeScriptEndpoints(mockDir: string): Promise<ParsedEn
   const tsFiles = await glob(`${mockDir}/**/*.ts`, { absolute: true });
   if (tsFiles.length === 0) return [];
 
-  const project = createTypeScriptProject();
   const endpoints: ParsedEndpoint[] = [];
 
   for (const filePath of tsFiles) {
-    const endpoint = await processTypeScriptFile(filePath, mockDir, project);
+    const endpoint = await processTypeScriptFile(filePath, mockDir);
     if (endpoint) {
       endpoints.push(endpoint);
     }
@@ -30,13 +27,15 @@ export async function loadTypeScriptEndpoints(mockDir: string): Promise<ParsedEn
   return endpoints;
 }
 
-async function processTypeScriptFile(filePath: string, mockDir: string, project: Project): Promise<ParsedEndpoint | null> {
+async function processTypeScriptFile(filePath: string, mockDir: string): Promise<ParsedEndpoint | null> {
   try {
     const content = await readFile(filePath, 'utf-8');
-    const sourceFile = project.createSourceFile(filePath, content);
     
-    const interfaceDeclaration = extractDefaultInterface(sourceFile);
-    if (!interfaceDeclaration) return null;
+    //Use cached interface parsing
+    const parsed = parseInterfaceWithCache(filePath, content);
+    if (!parsed) return null;
+    
+    const { interface: interfaceDeclaration } = parsed;
 
     const { httpMethod, endpointPath } = extractEndpointInfoFromPath(filePath, mockDir);
     const mockData = generateMockFromInterface(interfaceDeclaration);

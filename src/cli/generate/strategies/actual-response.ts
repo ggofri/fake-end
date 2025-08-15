@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { ResponseGenerationStrategy } from './base';
-import { isRecordOfStrings } from '@/cli/generate/types';
+import { isRecordOfStrings } from '@/utils';
 
 export class ActualResponseStrategy extends ResponseGenerationStrategy {
   constructor(private actualResponse: string) {

@@ -1,4 +1,5 @@
-import { CurlInfo, isRecordOfStrings } from '@/cli/generate/types';
+import { CurlInfo } from '@/cli/generate/types';
+import { isRecordOfStrings } from '@/utils';
 import { createResourceResponse, createSuccessResponse, createCreatedResponse, createUpdatedResponse } from '@/utils';
 
 export function generateBasicMockResponse(curlInfo: CurlInfo): Record<string, unknown> {

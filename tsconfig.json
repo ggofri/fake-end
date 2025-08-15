@@ -37,5 +37,14 @@
     "noPropertyAccessFromIndexSignature": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "src/**/*",
+    "mock_server/**/*"
+  ],
+  "exclude": [
+    "tests/**/*",
+    "node_modules",
+    "dist"
+  ]
 }

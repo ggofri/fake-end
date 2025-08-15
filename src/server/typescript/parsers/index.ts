@@ -1,1 +1,1 @@
-export { createTypeScriptProject, extractDefaultInterface } from './interface-parser';
+export { createTypeScriptProject, extractDefaultInterface, parseInterfaceWithCache } from './interface-parser';

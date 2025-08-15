@@ -4,3 +4,4 @@ export * from './buffer';
 export * from './format';
 export * from './mock';
 export * from './ollama';
+export * from './cache';

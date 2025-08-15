@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { CurlInfo, isOllamaResponse, isRecordOfStrings } from '@/cli/generate/types';
+import { CurlInfo, isOllamaResponse } from '@/cli/generate/types';
+import { isRecordOfStrings } from '@/utils';
 import { generateBasicMockResponse } from './mock-generator';
 import { OLLAMA_JSON_GROUP_INDEX } from '@/constants';
 

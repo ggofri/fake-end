@@ -5,6 +5,7 @@ import { MockEndpoint, ParsedEndpoint } from '@/types';
 import { loadTypeScriptEndpoints } from './ts-loader';
 import { buildEndpointPath } from './path-builder';
 import { verboseLog, verboseError, verboseWarn, isObject, hasRequiredProperties, hasValidPropertyTypes, isValidHttpMethod } from '@/utils';
+import { JSON_STRINGIFY_INDENT } from '@/constants';
 import chalk from 'chalk';
 import { isArrayOfMockEndpoints } from '@/cli/generate';
 
@@ -46,7 +47,7 @@ async function loadYamlEndpoints(mockDir: string): Promise<ParsedEndpoint[]> {
 
       for (const endpoint of parsedContent) {
         if (!isValidEndpoint(endpoint)) {
-          verboseWarn(chalk.yellow(`⚠️  Invalid endpoint in ${filePath}:`, endpoint));
+          verboseWarn(chalk.yellow(`⚠️  Invalid endpoint in ${filePath}:`, JSON.stringify(endpoint, null, JSON_STRINGIFY_INDENT)));
           continue;
         }
 
@@ -69,14 +70,13 @@ async function loadYamlEndpoints(mockDir: string): Promise<ParsedEndpoint[]> {
 function isValidEndpoint(endpoint: unknown): endpoint is MockEndpoint {
   if (!isObject(endpoint)) return false;
   
-  const requiredProps = ['method', 'path', 'status', 'body'];
+  const requiredProps = ['method', 'path', 'status'];
   if (!hasRequiredProperties(endpoint, requiredProps)) return false;
   
   const typeValidations = {
     method: (value: unknown): boolean => typeof value === 'string',
     path: (value: unknown): boolean => typeof value === 'string',
-    status: (value: unknown): boolean => typeof value === 'number',
-    body: (value: unknown): boolean => value !== undefined
+    status: (value: unknown): boolean => typeof value === 'number'
   };
   if (!hasValidPropertyTypes(endpoint, typeValidations)) return false;
   
