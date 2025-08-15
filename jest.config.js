@@ -1,8 +1,8 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests'],
-  testMatch: ['**/*.test.ts'],
+  roots: ['<rootDir>/tests', 'src'],
+  testMatch: ['**/*.test.ts', '**/__tests__/*.test.ts'],
   collectCoverageFrom: [
     'src/**/*.{ts,js}',
     '!src/**/*.d.ts',
@@ -16,6 +16,9 @@ module.exports = {
     '^@/cli/(.*)$': '<rootDir>/src/cli/$1',
     '^@/utils$': '<rootDir>/src/utils/index'
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(chalk)/)'
+  ],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
   globalSetup: '<rootDir>/tests/global-setup.ts',

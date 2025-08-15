@@ -38,7 +38,7 @@ const isMockEndpoint = (value: unknown): value is MockEndpoint => {
 
 export const isArrayOfMockEndpoints = (value: unknown): value is MockEndpoint[] => {
     if (!Array.isArray(value)) return false;
-    if (value.find((element) => !isMockEndpoint(element))) return false;
+    if (value.some((element) => !isMockEndpoint(element))) return false;
 
     return true
 }
