@@ -1,26 +1,16 @@
 import { MockEndpoint, OllamaResponse } from ".";
+import { isRecordOfUnknown, isNil } from '@/utils';
 
-export const isRecordOfStrings = (value: unknown): value is Record<string, unknown> => {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  if (Array.isArray(value)) {
-    return false;
-  }
-
-  for (const key in value) {
-    if (typeof key !== 'string') {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-const isRecordOfUnknown = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+const isValidBodyValue = (value: unknown): boolean => {
+  return (
+    isNil(value) ||
+    isRecordOfUnknown(value) ||
+    Array.isArray(value) ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  );
+};
 
 const isMockEndpoint = (value: unknown): value is MockEndpoint => {
   if (!isRecordOfUnknown(value)) {
@@ -39,14 +29,7 @@ const isMockEndpoint = (value: unknown): value is MockEndpoint => {
     return false;
   }
 
-  const isBodyValid = 
-    isRecordOfUnknown(value['body']) ||
-    Array.isArray(value['body']) ||
-    typeof value['body'] === 'string' ||
-    typeof value['body'] === 'number' ||
-    typeof value['body'] === 'boolean';
-
-  if (!isBodyValid) {
+  if ('body' in value && !isValidBodyValue(value['body'])) {
     return false;
   }
 

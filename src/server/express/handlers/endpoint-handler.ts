@@ -2,6 +2,7 @@ import { Application, Request, Response } from 'express';
 import { ParsedEndpoint, isValidMethod, validLowercaseMethods } from '@/types';
 import { logRequest, logResponse } from '@/server/express/utils/logger';
 import { interpolateParams } from '@/server/express/utils/parameter-interpolator';
+import { HTTP_STATUS } from '@/constants';
 
 function isValidLowercaseMethod(method: string): method is validLowercaseMethods {
   return ['get', 'post', 'put', 'delete', 'patch'].includes(method);
@@ -40,7 +41,7 @@ function createEndpointHandler(endpoint: ParsedEndpoint) {
 
     let responseBody = endpoint.body;
 
-    if (typeof responseBody === "string" || typeof responseBody === "object") {
+    if (responseBody !== undefined && (typeof responseBody === "string" || typeof responseBody === "object")) {
       responseBody = interpolateParams(
         responseBody,
         req.params,
@@ -52,6 +53,10 @@ function createEndpointHandler(endpoint: ParsedEndpoint) {
     const duration = Date.now() - startTime;
     logResponse(endpoint.status, duration);
 
-    res.status(endpoint.status).json(responseBody);
+    if (endpoint.status === HTTP_STATUS.NO_CONTENT || responseBody === undefined) {
+      res.status(endpoint.status).send();
+    } else {
+      res.status(endpoint.status).json(responseBody);
+    }
   };
 }

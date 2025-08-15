@@ -1,4 +1,5 @@
 import { Project, Node, InterfaceDeclaration, SourceFile } from 'ts-morph';
+import { interfaceCache } from '@/server/typescript/cache/interface-cache';
 
 export function createTypeScriptProject(): Project {
   return new Project({
@@ -28,6 +29,25 @@ export function extractDefaultInterface(sourceFile: SourceFile): InterfaceDeclar
         return exportedDecl;
       }
     }
+  }
+  
+  return null;
+}
+
+export function parseInterfaceWithCache(filePath: string, content: string): { interface: InterfaceDeclaration; project: Project } | null {
+  const cached = interfaceCache.get(filePath, content);
+  if (cached) {
+    return cached;
+  }
+
+  const project = createTypeScriptProject();
+  const sourceFile = project.createSourceFile(filePath, content);
+  const interfaceDecl = extractDefaultInterface(sourceFile);
+  
+  if (interfaceDecl) {
+    const result = { interface: interfaceDecl, project };
+    interfaceCache.set(filePath, content, interfaceDecl, project);
+    return result;
   }
   
   return null;

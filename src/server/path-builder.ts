@@ -1,15 +1,41 @@
-export function buildEndpointPath(filePath: string, mockDir: string, endpointPath: string): string {
-  const normalizedMockDir = mockDir.endsWith('/') ? mockDir : `${mockDir}/`;
-  let relativePath = filePath;
-  
+function normalizeMockDir(mockDir: string): string {
+  return mockDir.endsWith('/') ? mockDir : `${mockDir}/`;
+}
+
+function extractRelativePath(filePath: string, normalizedMockDir: string): string {
   if (filePath.includes(normalizedMockDir)) {
-    relativePath = filePath.split(normalizedMockDir)[1] ?? '';
-  } else {
-    const absoluteMockDir = `${process.cwd()}/${normalizedMockDir}`;
-    if (filePath.includes(absoluteMockDir)) {
-      relativePath = filePath.split(absoluteMockDir)[1] ?? '';
-    }
+    return filePath.split(normalizedMockDir)[1] ?? '';
   }
+  
+  const absoluteMockDir = `${process.cwd()}/${normalizedMockDir}`;
+  if (filePath.includes(absoluteMockDir)) {
+    return filePath.split(absoluteMockDir)[1] ?? '';
+  }
+  
+  return filePath;
+}
+
+function shouldSkipFileNameInPath(endpointPath: string, fileName: string): boolean {
+  return endpointPath.startsWith(`/${fileName}`) || endpointPath === `/${fileName}`;
+}
+
+function buildPathWithDirectory(directoryPath: string, fileName: string, endpointPath: string): string {
+  if (endpointPath.startsWith(`/${fileName}`)) {
+    return `/${directoryPath}${endpointPath}`;
+  }
+  return `/${directoryPath}/${fileName}${endpointPath}`;
+}
+
+function buildPathWithFileOnly(fileName: string, endpointPath: string): string {
+  if (shouldSkipFileNameInPath(endpointPath, fileName)) {
+    return endpointPath;
+  }
+  return `/${fileName}${endpointPath}`;
+}
+
+export function buildEndpointPath(filePath: string, mockDir: string, endpointPath: string): string {
+  const normalizedMockDir = normalizeMockDir(mockDir);
+  let relativePath = extractRelativePath(filePath, normalizedMockDir);
   
   relativePath = relativePath.replace(/\.(yaml|yml|ts)$/, '');
   const pathParts = relativePath.split('/');
@@ -17,12 +43,12 @@ export function buildEndpointPath(filePath: string, mockDir: string, endpointPat
   const directoryPath = pathParts.slice(0, -1).join('/');
   
   if (directoryPath && fileName) {
-    return `/${directoryPath}/${fileName}${endpointPath}`;
+    return buildPathWithDirectory(directoryPath, fileName, endpointPath);
   } else if (fileName) {
-    return `/${fileName}${endpointPath}`;
-  } 
-    return endpointPath;
+    return buildPathWithFileOnly(fileName, endpointPath);
+  }
   
+  return endpointPath;
 }
 
 export function extractMethodFromFileName(fileName: string): { method: string; baseName: string } {

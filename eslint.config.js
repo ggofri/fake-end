@@ -105,6 +105,11 @@ export default tseslint.config(
   {
     files: ["**/*.js", "**/*.mjs"],
     ...tseslint.configs.disableTypeChecked,
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
   {
     ignores: [
@@ -112,7 +117,12 @@ export default tseslint.config(
       "node_modules/**/*",
       "coverage/**/*",
       "*.config.js",
+      "eslint.config.js",
       "mock_server/**/*",
+      "bin.js",
+      "register.js",
+      "scripts/**/*.js",
+      "tests/**/*",
     ],
   }
 );
