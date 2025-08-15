@@ -16,8 +16,8 @@ export function createSuccessResponse(message: string): Record<string, unknown> 
 
 export function createCreatedResponse(id: string, data: Record<string, unknown>): Record<string, unknown> {
   return {
-    id,
     ...data,
+    id,
     message: 'Resource created successfully',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -26,8 +26,8 @@ export function createCreatedResponse(id: string, data: Record<string, unknown>)
 
 export function createUpdatedResponse(id: string, data: Record<string, unknown>): Record<string, unknown> {
   return {
-    id,
     ...data,
+    id,
     message: 'Resource updated successfully',
     updatedAt: new Date().toISOString()
   };

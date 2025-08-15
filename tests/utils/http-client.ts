@@ -88,6 +88,13 @@ export class HttpClient {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       
+      console.error('HTTP Request failed:', {
+        url,
+        method,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
       throw new Error(`Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
