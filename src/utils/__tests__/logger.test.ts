@@ -6,12 +6,10 @@ describe('Logger Utils', () => {
   let consoleWarnSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    // Mock console methods
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
     
-    // Reset verbose state before each test
     setVerbose(false);
   });
 
@@ -30,13 +28,13 @@ describe('Logger Utils', () => {
     });
 
     it('should set verbose mode to false', () => {
-      setVerbose(true); // First set to true
+      setVerbose(true);
       verboseLog('test message');
       expect(consoleLogSpy).toHaveBeenCalledWith('test message');
       
       consoleLogSpy.mockClear();
       
-      setVerbose(false); // Then set to false
+      setVerbose(false);
       verboseLog('test message');
       expect(consoleLogSpy).not.toHaveBeenCalled();
     });
@@ -246,7 +244,6 @@ describe('Logger Utils', () => {
     });
 
     it('should affect all logging functions when verbose state changes', () => {
-      // Start with verbose disabled
       setVerbose(false);
       
       verboseLog('Should not log');
@@ -257,7 +254,6 @@ describe('Logger Utils', () => {
       expect(consoleErrorSpy).not.toHaveBeenCalled();
       expect(consoleWarnSpy).not.toHaveBeenCalled();
       
-      // Enable verbose
       setVerbose(true);
       
       verboseLog('Should log');
@@ -272,7 +268,6 @@ describe('Logger Utils', () => {
 
   describe('Default behavior', () => {
     it('should start with verbose disabled by default', () => {
-      // Without calling setVerbose, it should default to false
       verboseLog('Default test');
       verboseError('Default test');
       verboseWarn('Default test');

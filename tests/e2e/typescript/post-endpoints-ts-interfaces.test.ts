@@ -19,7 +19,6 @@ describe('POST_ENDPOINTS_TS_INTERFACES', () => {
   it('should handle basic TypeScript interface for POST endpoints', async () => {
     context = await createTestContext();
     
-    // Create a simple interface that might work with current implementation
     const tsContent = `
 interface CreateUserResponse {
   id: number;
@@ -36,7 +35,6 @@ export default CreateUserResponse;`;
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Try GET first (more likely to work with current implementation)
     const response = await context.client.get('/create-user');
     
     expect(response.status).toBe(200);

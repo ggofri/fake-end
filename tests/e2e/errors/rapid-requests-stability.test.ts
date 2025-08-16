@@ -34,7 +34,6 @@ describe('RAPID_REQUESTS_STABILITY', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Make rapid requests
     const rapidRequests: Promise<any>[] = [];
     for (let i = 0; i < 20; i++) {
       rapidRequests.push(context.client.get('/api/rapid'));
@@ -42,7 +41,6 @@ describe('RAPID_REQUESTS_STABILITY', () => {
     
     const responses = await Promise.all(rapidRequests);
     
-    // All requests should succeed
     responses.forEach(response => {
       expect(response.status).toBe(200);
       expect(response.body.timestamp).toBeDefined();

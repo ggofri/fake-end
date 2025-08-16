@@ -34,14 +34,12 @@ describe('CONCURRENT_REQUESTS', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Make 10 concurrent requests
     const requests = Array.from({ length: 10 }, () =>
       context.client.get('/api/concurrent')
     );
     
     const responses = await Promise.all(requests);
     
-    // All requests should succeed
     responses.forEach(response => {
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Concurrent request handled');

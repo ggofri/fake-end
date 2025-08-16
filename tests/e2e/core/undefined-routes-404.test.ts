@@ -31,11 +31,9 @@ describe('UNDEFINED_ROUTES_404', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // This should work
     const existingResponse = await context.client.get('/api/existing');
     expect(existingResponse.status).toBe(200);
     
-    // This should return 404
     try {
       await context.client.get('/api/nonexistent');
       fail('Should have returned 404');

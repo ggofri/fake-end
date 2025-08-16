@@ -35,7 +35,6 @@ describe('MISSING_BODY_HANDLING', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Request with complete body should work
     const completeResponse = await context.client.post('/api/expects-body', {
       name: 'John',
       email: 'john@example.com'
@@ -43,10 +42,9 @@ describe('MISSING_BODY_HANDLING', () => {
     expect(completeResponse.status).toBe(200);
     expect(completeResponse.body.name).toBe('John');
     
-    // Request with empty body should not crash server
     const emptyResponse = await context.client.post('/api/expects-body', {});
     expect(emptyResponse.status).toBe(200);
-    // Template variables should be handled gracefully (empty or placeholder)
+    
     expect(completeResponse.body.processed).toBe(true);
   });
 });

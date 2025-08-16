@@ -64,19 +64,12 @@ describe('Utils Index', () => {
       const utilsIndex = require('../index');
       const exportedKeys = Object.keys(utilsIndex);
       
-      // Verify we have exports from all modules
       const expectedExports = [
-        // Logger
         'setVerbose', 'verboseLog', 'verboseError', 'verboseWarn',
-        // Validation
         'isObject', 'hasRequiredProperties', 'hasValidPropertyTypes', 'isValidHttpMethod',
-        // URL Parser
         'normalizeUrl', 'extractQueryParams', 'findFirstNonEmptyMatch',
-        // Response Templates
         'createResourceResponse', 'createSuccessResponse', 'createCreatedResponse', 'createUpdatedResponse',
-        // Port Utils
         'isPortAvailable', 'findAvailablePort', 'startServerWithPortFallback',
-        // Typeguards
         'isRecordOfUnknown', 'isRecordOfStrings', 'isNil'
       ];
       
@@ -89,23 +82,15 @@ describe('Utils Index', () => {
       const utilsIndex = require('../index');
       const exportedKeys = Object.keys(utilsIndex);
       
-      // Define all expected exports
       const expectedExports = [
-        // Logger
         'setVerbose', 'verboseLog', 'verboseError', 'verboseWarn',
-        // Validation
         'isObject', 'hasRequiredProperties', 'hasValidPropertyTypes', 'isValidHttpMethod',
-        // URL Parser
         'normalizeUrl', 'extractQueryParams', 'findFirstNonEmptyMatch',
-        // Response Templates
         'createResourceResponse', 'createSuccessResponse', 'createCreatedResponse', 'createUpdatedResponse',
-        // Port Utils
         'isPortAvailable', 'findAvailablePort', 'startServerWithPortFallback',
-        // Typeguards
         'isRecordOfUnknown', 'isRecordOfStrings', 'isNil'
       ];
       
-      // Check that we don't have unexpected exports
       const unexpectedExports = exportedKeys.filter(key => !expectedExports.includes(key));
       expect(unexpectedExports).toEqual([]);
     });
@@ -130,7 +115,6 @@ describe('Utils Index', () => {
 
   describe('Module Integration', () => {
     it('should allow importing all functions from index', () => {
-      // Test that we can destructure all expected functions
       const {
         setVerbose, verboseLog, verboseError, verboseWarn,
         isObject, hasRequiredProperties, hasValidPropertyTypes, isValidHttpMethod,
@@ -140,7 +124,6 @@ describe('Utils Index', () => {
         isRecordOfUnknown, isRecordOfStrings, isNil
       } = require('../index');
       
-      // Verify all imports are functions
       expect(typeof setVerbose).toBe('function');
       expect(typeof verboseLog).toBe('function');
       expect(typeof verboseError).toBe('function');
@@ -167,7 +150,6 @@ describe('Utils Index', () => {
     it('should maintain function references consistency', () => {
       const utilsIndex = require('../index');
       
-      // Import again to test reference consistency
       const utilsIndexAgain = require('../index');
       
       expect(utilsIndex.setVerbose).toBe(utilsIndexAgain.setVerbose);

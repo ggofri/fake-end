@@ -113,9 +113,11 @@ export class CleanupManager {
             rmSync(fullPath, { recursive: true, force: true });
           }
         } catch (error) {
+          console.error("Error when cleaning tests directories: ", error.message ?? error)
         }
       }
     } catch (error) {
+      console.error("Error when cleaning tests directories: ", error.message ?? error)
     }
   }
 
@@ -123,6 +125,7 @@ export class CleanupManager {
     try {
       execSync('pkill -f "fake-end" || pkill -f "bin.js" || true', { stdio: 'pipe' });
     } catch (error) {
+      console.error("Error when cleaning running servers: ", error.message ?? error)
     }
   }
 
@@ -130,6 +133,7 @@ export class CleanupManager {
     try {
       execSync('pkill -f "fake-end" || pkill -f "bin.js" || true', { stdio: 'pipe' });
     } catch (error) {
+      console.error("Error when cleaning running servers sync: ", error.message ?? error)
     }
   }
 
@@ -193,6 +197,7 @@ export class CleanupManager {
               rmSync(fullPath, { force: true });
             }
           } catch (error) {
+            console.error("Error when trying to force clean all: ", error.message ?? error)
           }
         }
       }

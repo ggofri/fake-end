@@ -1,3 +1,5 @@
+const { TEST_CONFIG } = require('./src/config/test.ts');
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -8,6 +10,15 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/types/**/*',
   ],
+  coverageReporters: ['text', 'lcov', 'json-summary'],
+  coverageThreshold: {
+    global: {
+      lines: TEST_CONFIG.COVERAGE,
+      functions: TEST_CONFIG.COVERAGE,
+      branches: TEST_CONFIG.COVERAGE,
+      statements: TEST_CONFIG.COVERAGE,
+    },
+  },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/types$': '<rootDir>/src/types/index',

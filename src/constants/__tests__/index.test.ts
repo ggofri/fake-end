@@ -73,22 +73,14 @@ describe('Constants Index', () => {
       const constantsIndex = require('../index');
       const exportedKeys = Object.keys(constantsIndex);
       
-      // Verify we have exports from all modules
       const expectedExports = [
-        // HTTP
         'HTTP_STATUS',
-        // Timing
         'DELAY_RANGE_MAX', 'DELAY_RANGE_MIN', 'TIMEOUT_DEFAULT_MS', 'PORT_RETRY_MAX', 'PORT_FALLBACK_MAX_ATTEMPTS',
-        // Buffer
         'BUFFER_SIZE_MB', 'COMMAND_PREVIEW_LENGTH', 'ERROR_PREVIEW_LENGTH',
-        // Format
         'METHOD_PADDING_LENGTH', 'JSON_STRINGIFY_INDENT',
-        // Mock
         'BOOLEAN_PROBABILITY', 'ID_STRING_BASE', 'ID_SUBSTRING_START', 'ID_SUBSTRING_LENGTH',
         'MAX_COUNT_VALUE', 'MAX_ID_VALUE', 'MAX_PRICE_VALUE', 'PRICE_PRECISION_MULTIPLIER',
-        // Ollama
         'OLLAMA_JSON_GROUP_INDEX',
-        // Cache
         'CACHE_MAX_AGE_MINUTES', 'CACHE_MAX_ENTRIES', 'CACHE_CLEANUP_BUFFER', 'MILLISECONDS_PER_MINUTE'
       ];
       
@@ -101,26 +93,17 @@ describe('Constants Index', () => {
       const constantsIndex = require('../index');
       const exportedKeys = Object.keys(constantsIndex);
       
-      // Define all expected exports
       const expectedExports = [
-        // HTTP
         'HTTP_STATUS',
-        // Timing
         'DELAY_RANGE_MAX', 'DELAY_RANGE_MIN', 'TIMEOUT_DEFAULT_MS', 'PORT_RETRY_MAX', 'PORT_FALLBACK_MAX_ATTEMPTS',
-        // Buffer
         'BUFFER_SIZE_MB', 'COMMAND_PREVIEW_LENGTH', 'ERROR_PREVIEW_LENGTH',
-        // Format
         'METHOD_PADDING_LENGTH', 'JSON_STRINGIFY_INDENT',
-        // Mock
         'BOOLEAN_PROBABILITY', 'ID_STRING_BASE', 'ID_SUBSTRING_START', 'ID_SUBSTRING_LENGTH',
         'MAX_COUNT_VALUE', 'MAX_ID_VALUE', 'MAX_PRICE_VALUE', 'PRICE_PRECISION_MULTIPLIER',
-        // Ollama
         'OLLAMA_JSON_GROUP_INDEX',
-        // Cache
         'CACHE_MAX_AGE_MINUTES', 'CACHE_MAX_ENTRIES', 'CACHE_CLEANUP_BUFFER', 'MILLISECONDS_PER_MINUTE'
       ];
       
-      // Check that we don't have unexpected exports
       const unexpectedExports = exportedKeys.filter(key => !expectedExports.includes(key));
       expect(unexpectedExports).toEqual([]);
     });
@@ -128,7 +111,6 @@ describe('Constants Index', () => {
     it('should export constants with correct types', () => {
       const constantsIndex = require('../index');
       
-      // Numbers
       expect(typeof constantsIndex.DELAY_RANGE_MAX).toBe('number');
       expect(typeof constantsIndex.DELAY_RANGE_MIN).toBe('number');
       expect(typeof constantsIndex.TIMEOUT_DEFAULT_MS).toBe('number');
@@ -153,7 +135,6 @@ describe('Constants Index', () => {
       expect(typeof constantsIndex.CACHE_CLEANUP_BUFFER).toBe('number');
       expect(typeof constantsIndex.MILLISECONDS_PER_MINUTE).toBe('number');
       
-      // Objects
       expect(typeof constantsIndex.HTTP_STATUS).toBe('object');
       expect(constantsIndex.HTTP_STATUS).not.toBeNull();
     });
@@ -161,7 +142,6 @@ describe('Constants Index', () => {
 
   describe('Module Integration', () => {
     it('should allow importing all constants from index', () => {
-      // Test that we can destructure all expected constants
       const {
         HTTP_STATUS,
         DELAY_RANGE_MAX, DELAY_RANGE_MIN, TIMEOUT_DEFAULT_MS, PORT_RETRY_MAX, PORT_FALLBACK_MAX_ATTEMPTS,
@@ -173,7 +153,6 @@ describe('Constants Index', () => {
         CACHE_MAX_AGE_MINUTES, CACHE_MAX_ENTRIES, CACHE_CLEANUP_BUFFER, MILLISECONDS_PER_MINUTE
       } = require('../index');
       
-      // Verify all imports are defined
       expect(HTTP_STATUS).toBeDefined();
       expect(DELAY_RANGE_MAX).toBeDefined();
       expect(DELAY_RANGE_MIN).toBeDefined();
@@ -203,7 +182,6 @@ describe('Constants Index', () => {
     it('should maintain constant references consistency', () => {
       const constantsIndex = require('../index');
       
-      // Import again to test reference consistency
       const constantsIndexAgain = require('../index');
       
       expect(constantsIndex.HTTP_STATUS).toBe(constantsIndexAgain.HTTP_STATUS);
@@ -299,22 +277,19 @@ describe('Constants Index', () => {
     it('should ensure constants maintain expected relationships', () => {
       const constantsIndex = require('../index');
       
-      // Timing relationships
       expect(constantsIndex.DELAY_RANGE_MIN).toBeLessThan(constantsIndex.DELAY_RANGE_MAX);
       expect(constantsIndex.PORT_RETRY_MAX).toBe(constantsIndex.PORT_FALLBACK_MAX_ATTEMPTS);
       
-      // Mock value relationships
       expect(constantsIndex.ID_SUBSTRING_START).toBeGreaterThanOrEqual(0);
       expect(constantsIndex.ID_SUBSTRING_LENGTH).toBeGreaterThan(0);
       expect(constantsIndex.ID_STRING_BASE).toBeGreaterThan(1);
       expect(constantsIndex.BOOLEAN_PROBABILITY).toBeGreaterThanOrEqual(0);
       expect(constantsIndex.BOOLEAN_PROBABILITY).toBeLessThanOrEqual(1);
       
-      // Cache relationships
       expect(constantsIndex.CACHE_MAX_ENTRIES).toBeGreaterThan(0);
       expect(constantsIndex.CACHE_MAX_AGE_MINUTES).toBeGreaterThan(0);
       expect(constantsIndex.CACHE_CLEANUP_BUFFER).toBeGreaterThan(0);
-      expect(constantsIndex.MILLISECONDS_PER_MINUTE).toBe(60000); // 60 * 1000
+      expect(constantsIndex.MILLISECONDS_PER_MINUTE).toBe(60000);
     });
 
     it('should ensure positive values where expected', () => {

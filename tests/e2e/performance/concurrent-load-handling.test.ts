@@ -27,7 +27,7 @@ describe('CONCURRENT_LOAD_HANDLING', () => {
           timestamp: new Date().toISOString(),
           id: Math.random().toString(36).substr(2, 9)
         },
-        delayMs: 50 // Small realistic delay
+        delayMs: 50 
       }
     ]);
     
@@ -36,7 +36,6 @@ describe('CONCURRENT_LOAD_HANDLING', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Make 20 concurrent requests (realistic load)
     const requests = Array.from({ length: 20 }, () =>
       context.client.get('/api/concurrent')
     );
@@ -45,14 +44,12 @@ describe('CONCURRENT_LOAD_HANDLING', () => {
     const responses = await Promise.all(requests);
     const totalTime = Date.now() - startTime;
     
-    // All requests should succeed
     responses.forEach(response => {
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Concurrent request handled');
       expect(response.body.id).toBeDefined();
     });
     
-    // Should handle concurrency efficiently (not 20 * delay time)
-    expect(totalTime).toBeLessThan(5000); // Should be much less than 20 * 50ms + overhead
+    expect(totalTime).toBeLessThan(5000); 
   });
 });

@@ -8,9 +8,6 @@ export interface PortResult {
   fallbackUsed: boolean;
 }
 
-/**
- * Checks if a port is available
- */
 export async function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
     const server = createServer();
@@ -29,12 +26,6 @@ export async function isPortAvailable(port: number): Promise<boolean> {
   });
 }
 
-/**
- * Finds an available port starting from the desired port and incrementing
- * @param desiredPort - The preferred port to start with
- * @param maxAttempts - Maximum number of ports to try (default: 10)
- * @returns Promise<PortResult> - Information about the port selection
- */
 export async function findAvailablePort(
   desiredPort: number, 
   maxAttempts: number = PORT_FALLBACK_MAX_ATTEMPTS
@@ -60,14 +51,6 @@ export async function findAvailablePort(
   );
 }
 
-/**
- * Starts a server on the first available port starting from the desired port
- * @param app - Express app or HTTP server
- * @param desiredPort - The preferred port
- * @param maxAttempts - Maximum number of ports to try
- * @param logger - Optional logger function for fallback messages
- * @returns Promise<PortResult> - Information about the port used
- */
 export async function startServerWithPortFallback(
   app: Application,
   desiredPort: number,

@@ -19,7 +19,6 @@ describe('TS_SYNTAX_ERROR_HANDLING', () => {
   it('should handle TypeScript files with syntax errors gracefully', async () => {
     context = await createTestContext();
     
-    // Create valid TypeScript file first
     const validTsContent = `
 interface ValidInterface {
   id: number;
@@ -31,7 +30,6 @@ export default ValidInterface;`;
     
     writeFileSync(join(context.mockDir, 'valid.ts'), validTsContent);
     
-    // Create TypeScript file with syntax error
     const invalidTsContent = `
 interface InvalidInterface {
   id: number
@@ -43,11 +41,9 @@ interface InvalidInterface {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Valid endpoint should still work
     const validResponse = await context.client.get('/valid');
     expect(validResponse.status).toBe(200);
     
-    // Invalid endpoint should return 404 (not crash server)
     try {
       await context.client.get('/invalid');
       throw new Error('Should have returned 404');

@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 import { getPortForTestFile } from './port-manager';
 import { cleanupManager } from './cleanup-manager';
+void cleanupManager; 
 
 const execAsync = promisify(exec);
 
@@ -24,7 +25,6 @@ export interface ServerInstance {
 export class TestServerManager {
   private activeServers: Map<number, ServerInstance> = new Map();
   private testDirsToCleanup: Set<string> = new Set();
-  private serversByTestFile: Map<string, ServerInstance> = new Map();
 
   async startServer(options: TestServerOptions = {}): Promise<ServerInstance> {
     const port = options.port ?? getPortForTestFile();
@@ -121,6 +121,7 @@ export class TestServerManager {
     }
 
     return new Promise((resolve) => {
+      // eslint-disable-next-line prefer-const
       let forceKillTimeout: NodeJS.Timeout;
       
       const cleanup = () => {
@@ -189,13 +190,10 @@ export class TestServerManager {
       const { execSync } = await import('child_process');
       execSync('pkill -f "fake-end" || pkill -f "bin.js" || true', { stdio: 'pipe' });
     } catch (error) {
+      console.error("Error when trying forceCleanup: ", error.message ?? error)
     }
     
     await this.cleanup();
-  }
-
-  private getRandomPort(): number {
-    return Math.floor(Math.random() * (9999 - 3000) + 3000);
   }
 
   async waitForServerHealth(port: number, maxAttempts = 10): Promise<boolean> {

@@ -19,7 +19,6 @@ describe('MIXED_YAML_TS_FILES', () => {
   it('should handle both YAML and TypeScript mock files in same directory', async () => {
     context = await createTestContext();
     
-    // Create YAML mock file
     const yamlContent = `- method: GET
   path: /health
   status: 200
@@ -29,7 +28,6 @@ describe('MIXED_YAML_TS_FILES', () => {
     
     writeFileSync(join(context.mockDir, 'health.yaml'), yamlContent);
     
-    // Create TypeScript interface file
     const tsContent = `
 interface ApiInfo {
   version: string;
@@ -45,7 +43,6 @@ export default ApiInfo;`;
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Both endpoints should work
     const healthResponse = await context.client.get('/health');
     expect(healthResponse.status).toBe(200);
     expect(healthResponse.body.status).toBe('ok');

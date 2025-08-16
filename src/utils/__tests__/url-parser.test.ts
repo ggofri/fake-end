@@ -1,5 +1,7 @@
 import { normalizeUrl, extractQueryParams, findFirstNonEmptyMatch } from '../url-parser';
 
+type matchesType = [string, string, string]
+
 describe('URL Parser Utils', () => {
   describe('normalizeUrl', () => {
     it('should add https prefix to URLs without protocol', () => {
@@ -51,28 +53,27 @@ describe('URL Parser Utils', () => {
       const url = new URL('http://example.com/api?tag=js&tag=node&tag=api');
       const result = extractQueryParams(url);
       
-      // Should keep the last value
       expect(result.tag).toBe('api');
     });
   });
 
   describe('findFirstNonEmptyMatch', () => {
     it('should return first non-empty match', () => {
-      const matches = ['', 'second', 'third'];
+      const matches: matchesType = ['', 'second', 'third'];
       const result = findFirstNonEmptyMatch(matches);
       
       expect(result).toBe('second');
     });
 
     it('should handle all empty matches', () => {
-      const matches = ['', '', ''];
+      const matches: matchesType = ['', '', ''];
       const result = findFirstNonEmptyMatch(matches);
       
       expect(result).toBe('');
     });
 
     it('should handle matches with falsy but non-empty values', () => {
-      const matches = ['', '0', 'third'];
+      const matches: matchesType = ['', '0', 'third'];
       const result = findFirstNonEmptyMatch(matches);
       
       expect(result).toBe('0');
@@ -84,7 +85,7 @@ describe('URL Parser Utils', () => {
       const matches = text.match(regex);
       
       if (matches) {
-        const result = findFirstNonEmptyMatch(matches); // Function handles slicing internally
+        const result = findFirstNonEmptyMatch(matches);
         expect(result).toBe('abc');
       }
     });

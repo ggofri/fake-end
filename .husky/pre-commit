@@ -1,0 +1,18 @@
+bun run lint
+bun run test:unit:coverage
+bun run build
+bun run dev run &
+DEV_PID=$!
+sleep 5
+if kill -0 $DEV_PID 2>/dev/null; then
+  kill $DEV_PID
+  sleep 5
+  if kill -0 $DEV_PID 2>/dev/null; then
+    echo "Dev server started successfully"
+  else
+    echo "Dev server started successfully"
+  fi
+else
+  echo "Dev server failed to start"
+  exit 1
+fi

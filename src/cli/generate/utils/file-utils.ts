@@ -26,7 +26,6 @@ export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string 
 export function getRelativeEndpointPath(curlInfo: CurlInfo): string {
   const { path: urlPath } = curlInfo;
   
-  //Get the directory structure that will be created
   let filePath = urlPath.replace(/^\//, '').replace(/\/$/, '');
   filePath = filePath.replace(/\/:\w+/g, '');
   filePath = filePath.replace(/\/\{\w+\}/g, '');
@@ -39,7 +38,6 @@ export function getRelativeEndpointPath(curlInfo: CurlInfo): string {
   const fileName = pathParts.pop() ?? 'index';
   const dirPath = pathParts.length > 0 ? pathParts.join('/') : '';
   
-  //Calculate the relative path by removing the directory structure from the full path
   if (dirPath) {
     const directoryPrefix = `/${dirPath}`;
     if (urlPath.startsWith(directoryPrefix)) {
@@ -63,7 +61,7 @@ export async function writeYamlFile(filePath: string, endpoints: MockEndpoint[])
       existingEndpoints = parsed;
     }
   } catch {
-    //ignore
+    console.error('Error while writing YAML')
   }
   
   const mergedEndpoints = [...existingEndpoints];

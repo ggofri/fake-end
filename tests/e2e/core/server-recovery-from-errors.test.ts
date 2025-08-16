@@ -34,11 +34,9 @@ describe('SERVER_RECOVERY_FROM_ERRORS', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Valid request should work
     const validResponse = await context.client.post('/api/robust', { valid: true });
     expect(validResponse.status).toBe(200);
     
-    // Invalid JSON request
     try {
       await context.client.request('/api/robust', {
         method: 'POST',
@@ -46,10 +44,9 @@ describe('SERVER_RECOVERY_FROM_ERRORS', () => {
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (error) {
-      // Server should handle this gracefully
+      console.error(error)
     }
     
-    // Server should still function after invalid request
     const recoveryResponse = await context.client.post('/api/robust', { recovery: true });
     expect(recoveryResponse.status).toBe(200);
   });

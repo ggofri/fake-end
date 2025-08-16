@@ -31,11 +31,9 @@ describe('UNSUPPORTED_METHODS_404', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // GET should work
     const getResponse = await context.client.get('/api/readonly');
     expect(getResponse.status).toBe(200);
     
-    // POST should return 404 (current behavior - no POST endpoint defined)
     try {
       await context.client.post('/api/readonly', { data: 'test' });
       fail('Should have returned 404');

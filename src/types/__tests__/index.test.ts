@@ -54,7 +54,6 @@ describe('Types Module', () => {
       const method: string = 'GET';
       
       if (isValidMethod(method)) {
-        // TypeScript should know method is validMethods here
         const validMethodVar: validMethods = method;
         expect(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']).toContain(validMethodVar);
       }

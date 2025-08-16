@@ -46,7 +46,7 @@ function createEndpointHandler(endpoint: ParsedEndpoint) {
         responseBody,
         req.params,
         isRecord(req.query) ? req.query : {},
-        isRecord(req.body) ? req.body : {},
+        isRecord(req.body) ? req.body : {}
       );
     }
 

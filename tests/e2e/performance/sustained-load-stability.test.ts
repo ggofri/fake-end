@@ -34,9 +34,8 @@ describe('SUSTAINED_LOAD_STABILITY', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Run sustained load for a reasonable duration
-    const testDuration = 5000; // 5 seconds
-    const requestInterval = 100; // Request every 100ms
+    const testDuration = 5000; 
+    const requestInterval = 100; 
     const startTime = Date.now();
     const responses: any[] = [];
     
@@ -51,18 +50,14 @@ describe('SUSTAINED_LOAD_STABILITY', () => {
       await new Promise(resolve => setTimeout(resolve, requestInterval));
     }
     
-    // Analyze results
     const successfulResponses = responses.filter(r => r.success);
     const failedResponses = responses.filter(r => !r.success);
     
-    // Should have high success rate (>95%)
     const successRate = successfulResponses.length / responses.length;
     expect(successRate).toBeGreaterThan(0.95);
     
-    // Should have made multiple requests
     expect(responses.length).toBeGreaterThan(10);
     
-    // Failures should be minimal
     expect(failedResponses.length).toBeLessThan(responses.length * 0.05);
   });
 });
