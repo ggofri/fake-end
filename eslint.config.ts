@@ -46,7 +46,9 @@ export default tseslint.config(
           "argsIgnorePattern": "^_",
         },
       ],
-      "ban-comments/ban-comments": "error",
+      "ban-comments/ban-comments": ["error", {
+        "allowJSDoc": true
+      }],
       "spaced-comment": ["error", "always"],
       "line-comment-position": ["error", { "position": "above" }],
       "no-inline-comments": "error",

@@ -9,6 +9,26 @@
       name: "Mock User"
     expiresIn: 3600
   delayMs: 200
+  guard:
+    condition:
+      field: password
+      operator: equals
+      value: "admin123"
+    left:
+      status: 401
+      body:
+        error: "Invalid credentials"
+        message: "Incorrect email or password"
+    right:
+      status: 200
+      body:
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.admin.token"
+        user:
+          id: "1"
+          email: "{{body.email}}"
+          name: "Admin User"
+          role: "admin"
+        expiresIn: 3600
 
 - method: POST
   path: /register
@@ -20,6 +40,26 @@
       email: "{{body.email}}"
       name: "{{body.name}}"
     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock.registration.token"
+  guard:
+    condition:
+      field: email
+      operator: not_contains
+      value: "@spam.com"
+    left:
+      status: 400
+      body:
+        error: "Registration blocked"
+        message: "Email domain not allowed"
+    right:
+      status: 201
+      body:
+        message: "User registered successfully"
+        user:
+          id: "new-user-{{body.email}}"
+          email: "{{body.email}}"
+          name: "{{body.name}}"
+          role: "user"
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.valid.registration.token"
 
 - method: POST
   path: /logout
@@ -36,3 +76,50 @@
     name: "Current User"
     role: "user"
   delayMs: 50
+
+- method: POST
+  path: /admin/users
+  status: 200
+  body:
+    message: "Admin operation completed"
+  guard:
+    condition:
+      field: user.role
+      operator: equals
+      value: "admin"
+    left:
+      status: 403
+      body:
+        error: "Forbidden"
+        message: "Admin privileges required"
+    right:
+      status: 200
+      body:
+        message: "User created successfully"
+        user:
+          id: "admin-created-user"
+          email: "{{body.email}}"
+          name: "{{body.name}}"
+          role: "user"
+          createdBy: "{{body.user.email}}"
+
+- method: DELETE
+  path: /admin/cleanup
+  status: 200
+  body:
+    message: "Cleanup completed"
+  guard:
+    condition:
+      field: confirmAction
+      operator: exists
+    left:
+      status: 400
+      body:
+        error: "Bad Request"
+        message: "Confirmation required for destructive operations"
+    right:
+      status: 200
+      body:
+        message: "System cleanup completed successfully"
+        deletedItems: 42
+        timestamp: "2024-01-01T12:00:00Z"

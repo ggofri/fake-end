@@ -6,12 +6,51 @@ export const isValidMethod = (tentativeMethod: string): tentativeMethod is valid
   ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(tentativeMethod)
 );
 
+export interface Left<T> {
+  readonly _tag: 'Left';
+  readonly value: T;
+}
+
+export interface Right<T> {
+  readonly _tag: 'Right';
+  readonly value: T;
+}
+
+export type Either<L, R> = Left<L> | Right<R>;
+
+export const left = <T>(value: T): Left<T> => ({ _tag: 'Left', value });
+
+export const right = <T>(value: T): Right<T> => ({ _tag: 'Right', value });
+
+export const isLeft = <L, R>(either: Either<L, R>): either is Left<L> => either._tag === 'Left';
+
+export const isRight = <L, R>(either: Either<L, R>): either is Right<R> => either._tag === 'Right';
+
+export interface GuardCondition {
+  field: string;
+  operator: 'equals' | 'not_equals' | 'contains' | 'not_contains' | 'exists' | 'not_exists';
+  value?: unknown;
+}
+
+export interface GuardFunction {
+  condition: GuardCondition;
+  left: {
+    status: number;
+    body?: unknown;
+  };
+  right: {
+    status: number;
+    body?: unknown;
+  };
+}
+
 export interface MockEndpoint {
   method: validMethods;
   path: string;
   status: number;
   body?: unknown;
   delayMs?: number;
+  guard?: GuardFunction;
 };
 
 export interface ParsedEndpoint extends MockEndpoint {

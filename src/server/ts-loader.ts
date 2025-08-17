@@ -7,6 +7,7 @@ import {
   extractEndpointInfoFromPath,
   isValidTypeScriptEndpoint
 } from './typescript/';
+import { extractGuardFromInterface } from './typescript/utils/jsdoc-extractor';
 import type { TypeScriptEndpoint } from './typescript/';
 import { verboseError } from '@/utils';
 import chalk from 'chalk';
@@ -38,12 +39,14 @@ async function processTypeScriptFile(filePath: string, mockDir: string): Promise
 
     const { httpMethod, endpointPath } = extractEndpointInfoFromPath(filePath, mockDir);
     const mockData = generateMockFromInterface(interfaceDeclaration);
+    const guard = extractGuardFromInterface(interfaceDeclaration);
     
     const endpoint: TypeScriptEndpoint = {
       method: httpMethod,
       path: endpointPath,
       status: 200,
-      body: mockData
+      body: mockData,
+      ...(guard && { guard })
     };
 
     return isValidTypeScriptEndpoint(endpoint) ? {
