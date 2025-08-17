@@ -19,6 +19,7 @@ interface GenerateOptions {
   ollama?: boolean;
   ollamaModel: string;
   ollamaHost: string;
+  yaml?: boolean;
 }
 
 const program = new Command();
@@ -53,15 +54,16 @@ program
 
 program
   .command('generate')
-  .description('Generate YAML mock files from cURL commands')
+  .description('Generate TypeScript interface mock files from cURL commands (use --yaml for YAML format)')
   .option('-c, --curl <curl>', 'cURL command to analyze and mock')
   .option('-f, --file <file>', 'File containing cURL command')
-  .option('-o, --output <output>', 'Output directory for generated YAML files', 'mock_server')
+  .option('-o, --output <output>', 'Output directory for generated mock files', 'mock_server')
   .option('--execute', 'Force execution of the cURL command to capture actual response')
   .option('--no-execute', 'Skip execution and infer response structure instead')
   .option('--ollama', 'Use Ollama for AI-powered response generation (only used if --execute fails)')
   .option('--ollama-model <model>', 'Ollama model to use', 'qwen2.5-coder:0.5b')
   .option('--ollama-host <host>', 'Ollama host URL', 'http://localhost:11434')
+  .option('--yaml', 'Generate YAML files instead of TypeScript interfaces (default: TypeScript)')
   .action(async (options: GenerateOptions) => {
     try {
       await generateMockFromCurl(options);

@@ -128,9 +128,10 @@ describe('CLI Index', () => {
 
     it('should configure generate command correctly', () => {
       const descriptionCalls = mockCommand.description.mock.calls;
-      expect(descriptionCalls).toContainEqual(['Generate YAML mock files from cURL commands']);
+      expect(descriptionCalls).toContainEqual(['Generate TypeScript interface mock files from cURL commands (use --yaml for YAML format)']);
       expect(mockCommand.option).toHaveBeenCalledWith('-c, --curl <curl>', 'cURL command to analyze and mock');
-      expect(mockCommand.option).toHaveBeenCalledWith('-o, --output <output>', 'Output directory for generated YAML files', 'mock_server');
+      expect(mockCommand.option).toHaveBeenCalledWith('-o, --output <output>', 'Output directory for generated mock files', 'mock_server');
+      expect(mockCommand.option).toHaveBeenCalledWith('--yaml', 'Generate YAML files instead of TypeScript interfaces (default: TypeScript)');
       expect(mockCommand.option).toHaveBeenCalledWith('--ollama-model <model>', 'Ollama model to use', 'qwen2.5-coder:0.5b');
     });
 

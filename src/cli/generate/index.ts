@@ -7,7 +7,7 @@ import { MockGenerator } from './core';
 import { DependencyContainer } from './managers';
 
 export async function generateMockFromCurl(options: GenerateOptions): Promise<void> {
-  const dependencies = DependencyContainer.create();
+  const dependencies = DependencyContainer.create(options);
   const generator = new MockGenerator(dependencies);
   await generator.generateMock(options);
 }

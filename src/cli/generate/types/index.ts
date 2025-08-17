@@ -19,7 +19,11 @@ export interface OllamaConfig {
   ollamaHost: string;
 }
 
-export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig {}
+export interface OutputFormatConfig {
+  yaml?: boolean;
+}
+
+export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig, OutputFormatConfig {}
 
 export interface CurlInfo {
   method: string;
