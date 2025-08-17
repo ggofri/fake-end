@@ -43,7 +43,7 @@ export class TestServerManager {
     }
 
     return new Promise((resolve, reject) => {
-      const binPath = path.join(__dirname, '../../bin.js');
+      const binPath = path.join(__dirname, '../../bin.cjs');
       const args = [binPath, 'run', '-p', port.toString(), '-d', mockDir];
       if (dynamicMocks) {
         args.push('--dynamic-mocks');
@@ -196,7 +196,7 @@ export class TestServerManager {
   async forceCleanup(): Promise<void> {
     try {
       const { execSync } = await import('child_process');
-      execSync('pkill -f "fake-end" || pkill -f "bin.js" || true', { stdio: 'pipe' });
+      execSync('pkill -f "fake-end" || pkill -f "bin.cjs" || true', { stdio: 'pipe' });
     } catch (error) {
       console.error("Error when trying forceCleanup: ", error.message ?? error)
     }

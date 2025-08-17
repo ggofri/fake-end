@@ -4,15 +4,15 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
-    "fake-end": "./bin.js"
+    "fake-end": "./bin.cjs"
   },
   "scripts": {
     "dev": "tsx src/cli/index.ts",
-    "start": "bun bin.js",
+    "start": "bun bin.cjs",
     "build": "rm -rf dist && bun run tsc",
     "tsc": "tsc && tsc --project tsconfig.test.json && tsc-alias --resolve-full-paths",
     "tsc:no-emit": "tsc --no-emit && tsc --project tsconfig.test.json --no-emit",

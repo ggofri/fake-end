@@ -159,7 +159,7 @@ export default tseslint.config(
       "coverage/**/*",
       "*.config.ts",
       "eslint.config.ts",
-      "bin.js",
+      "bin.cjs",
       "scripts/**/*",
     ],
   }

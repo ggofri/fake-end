@@ -30,7 +30,7 @@ fi
 
 echo -e "${YELLOW}Cleaning up existing processes...${NC}"
 pkill -f "fake-end" || true
-pkill -f "bin.js" || true
+pkill -f "bin.cjs" || true
 sleep 1
 
 export NODE_ENV=test
@@ -77,7 +77,7 @@ else
     # Cleanup on failure
     echo -e "${YELLOW}Cleaning up after test failure...${NC}"
     pkill -f "fake-end" || true
-    pkill -f "bin.js" || true
+    pkill -f "bin.cjs" || true
     
     exit 1
 fi
