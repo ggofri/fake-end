@@ -13,8 +13,9 @@
   "scripts": {
     "dev": "tsx src/cli/index.ts",
     "start": "bun bin.js",
-    "build": "rm -rf dist && bun run tsc && tsc-alias --resolve-full-paths",
-    "tsc": "tsc && tsc --project tsconfig.test.json",
+    "build": "rm -rf dist && bun run tsc",
+    "tsc": "tsc && tsc --project tsconfig.test.json && tsc-alias --resolve-full-paths",
+    "tsc:no-emit": "tsc --no-emit && tsc --project tsconfig.test.json --no-emit",
     "lint": "eslint --ext .ts",
     "lint:fix": "eslint --ext .ts --fix",
     "test": "bun test:unit && bun test:e2e",
@@ -23,12 +24,11 @@
     "test:unit:coverage": "bun test:unit --coverage && bun scripts/update-coverage-threshold.mjs",
     "test:e2e": "jest tests/e2e/",
     "test:e2e:verbose": "jest tests/e2e/ --verbose",
-    "test:e2e:coverage": "jest tests/e2e/ --coverage",
     "test:e2e:run": "./tests/run-e2e.sh",
     "test:cleanup": "bun scripts/cleanup-tests.mjs",
     "prepare": "husky",
     "prepublishOnly": "bun run build",
-    "verify": "tsc --noEmit && bun run lint && bun run test",
+    "verify": "tsc --noEmit && bun run lint && bun test:unit:coverage && bun test:e2e",
     "publish": "bun run prepublishOnly && bun publish --access public"
   },
   "keywords": [

@@ -1,4 +1,4 @@
-const COVERAGE_THRESHOLD = 30;
+const COVERAGE_THRESHOLD = 35;
 
 export default {
   preset: 'ts-jest',

@@ -33,6 +33,21 @@ export function createYamlMockFile(endpoints: Array<{
   body?: any;
   delayMs?: number;
   headers?: Record<string, string>;
+  guard?: {
+    condition: {
+      field: string;
+      operator: string;
+      value?: any;
+    };
+    left: {
+      status: number;
+      body?: any;
+    };
+    right: {
+      status: number;
+      body?: any;
+    };
+  };
 }>): string {
   return endpoints.map(endpoint => {
     const yamlLines = [
@@ -61,6 +76,36 @@ export function createYamlMockFile(endpoints: Array<{
       Object.entries(endpoint.headers).forEach(([key, value]) => {
         yamlLines.push(`    ${key}: "${value}"`);
       });
+    }
+
+    if (endpoint.guard) {
+      yamlLines.push('  guard:');
+      yamlLines.push('    condition:');
+      yamlLines.push(`      field: ${endpoint.guard.condition.field}`);
+      yamlLines.push(`      operator: ${endpoint.guard.condition.operator}`);
+      if (endpoint.guard.condition.value !== undefined) {
+        yamlLines.push(`      value: ${JSON.stringify(endpoint.guard.condition.value)}`);
+      }
+      yamlLines.push('    left:');
+      yamlLines.push(`      status: ${endpoint.guard.left.status}`);
+      if (endpoint.guard.left.body !== undefined) {
+        if (typeof endpoint.guard.left.body === 'object') {
+          yamlLines.push('      body:');
+          yamlLines.push(...formatObjectAsYaml(endpoint.guard.left.body, 4));
+        } else {
+          yamlLines.push(`      body: ${JSON.stringify(endpoint.guard.left.body)}`);
+        }
+      }
+      yamlLines.push('    right:');
+      yamlLines.push(`      status: ${endpoint.guard.right.status}`);
+      if (endpoint.guard.right.body !== undefined) {
+        if (typeof endpoint.guard.right.body === 'object') {
+          yamlLines.push('      body:');
+          yamlLines.push(...formatObjectAsYaml(endpoint.guard.right.body, 4));
+        } else {
+          yamlLines.push(`      body: ${JSON.stringify(endpoint.guard.right.body)}`);
+        }
+      }
     }
 
     return yamlLines.join('\n');
