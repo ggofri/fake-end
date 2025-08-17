@@ -1,7 +1,3 @@
-/**
- * Shared type guards for common validation patterns
- */
-
 export const isRecordOfUnknown = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };

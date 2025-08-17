@@ -21,7 +21,6 @@ describe('FILE_MODIFICATIONS_HOTRELOAD', () => {
     
     const mockFilePath = join(context.mockDir, 'modifiable.yaml');
     
-    // Initial mock file
     const initialYaml = createYamlMockFile([
       {
         method: 'GET',
@@ -36,12 +35,10 @@ describe('FILE_MODIFICATIONS_HOTRELOAD', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Verify initial version
     const initialResponse = await context.client.get('/modifiable');
     expect(initialResponse.status).toBe(200);
     expect(initialResponse.body.version).toBe(1);
     
-    // Modify the mock file
     const modifiedYaml = createYamlMockFile([
       {
         method: 'GET',
@@ -53,10 +50,8 @@ describe('FILE_MODIFICATIONS_HOTRELOAD', () => {
     
     writeFileSync(mockFilePath, modifiedYaml);
     
-    // Wait for file system detection
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    // Check if modification was detected (if hot reload is implemented)
     try {
       const modifiedResponse = await context.client.get('/modifiable');
       if (modifiedResponse.body.version === 2) {
@@ -64,7 +59,7 @@ describe('FILE_MODIFICATIONS_HOTRELOAD', () => {
       } else {
         console.warn('Hot reload not implemented: Mock file changes require server restart');
       }
-    } catch (error) {
+    } catch {
       console.warn('Hot reload error handling needs improvement');
     }
   });

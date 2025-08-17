@@ -115,7 +115,6 @@ describe('Middleware', () => {
       expect(result).toBeUndefined();
     });
 
-
     it('should preserve middleware function references', () => {
       const jsonMiddleware = jest.fn();
       const urlencodedMiddleware = jest.fn();

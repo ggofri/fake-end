@@ -1,2 +1,1 @@
-require('./register.js');
-require('./dist/src/cli/index.js');
+import './dist/src/cli/index.js';

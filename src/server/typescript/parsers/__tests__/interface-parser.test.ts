@@ -1,4 +1,4 @@
-import { Project, Node, InterfaceDeclaration, SourceFile } from 'ts-morph';
+import { Project, Node } from 'ts-morph';
 import { createTypeScriptProject, extractDefaultInterface, parseInterfaceWithCache } from '../interface-parser';
 import { interfaceCache } from '@/server/typescript/cache/interface-cache';
 
@@ -235,7 +235,7 @@ describe('InterfaceParser', () => {
     it('should return cached result when available', () => {
       const mockProject = createTypeScriptProject();
       const mockInterface = mockProject.createSourceFile('mock.ts', content).getInterfaces()[0];
-      const cachedResult = { interface: mockInterface, project: mockProject };
+      const cachedResult = { interface: mockInterface!, project: mockProject };
       
       mockInterfaceCache.get.mockReturnValue(cachedResult);
 
@@ -290,7 +290,7 @@ describe('InterfaceParser', () => {
       const invalidContent = `
         interface User {
           id: number
-          name: string // missing semicolon
+          name: string
         }
         export default User;
       `;

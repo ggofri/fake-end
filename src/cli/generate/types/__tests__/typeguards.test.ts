@@ -185,7 +185,6 @@ describe('Generate Type Guards', () => {
         },
         {
           method: 'POST',
-          // missing path
           status: 201,
           body: { id: 1 }
         }
@@ -230,7 +229,6 @@ describe('Generate Type Guards', () => {
       ];
 
       if (isArrayOfMockEndpoints(value)) {
-        // TypeScript should know value is MockEndpoint[] here
         expect(value.length).toBe(1);
         expect(value[0].method).toBe('GET');
         expect(value[0].path).toBe('/users');
@@ -373,7 +371,6 @@ describe('Generate Type Guards', () => {
       };
 
       if (isOllamaResponse(value)) {
-        // TypeScript should know value is OllamaResponse here
         expect(typeof value.response).toBe('string');
         expect(value.response).toBe('Generated response');
       }
@@ -430,7 +427,6 @@ describe('Generate Type Guards', () => {
         {
           method: 'POST',
           path: '/invalid'
-          // missing status
         },
         {
           response: 'Another Ollama response',
@@ -447,18 +443,18 @@ describe('Generate Type Guards', () => {
 
     it('should handle edge cases in combination', () => {
       const edgeCases = [
-        [], // empty array - valid for mock endpoints
-        { response: '' }, // empty response - valid for ollama
-        [{}], // array with invalid mock endpoint
-        { response: undefined }, // invalid ollama response
-        { otherProperty: 'value' } // neither type
+        [],
+        { response: '' },
+        [{}],
+        { response: undefined },
+        { otherProperty: 'value' }
       ];
 
       const validMockArrays = edgeCases.filter(isArrayOfMockEndpoints);
       const validOllamaResponses = edgeCases.filter(isOllamaResponse);
 
-      expect(validMockArrays).toHaveLength(1); // only empty array
-      expect(validOllamaResponses).toHaveLength(1); // only empty response
+      expect(validMockArrays).toHaveLength(1);
+      expect(validOllamaResponses).toHaveLength(1);
     });
   });
 });

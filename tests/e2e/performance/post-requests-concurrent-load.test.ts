@@ -35,14 +35,12 @@ describe('POST_REQUESTS_CONCURRENT_LOAD', () => {
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Make concurrent POST requests with different data
     const requests = Array.from({ length: 10 }, (_, i) =>
       context.client.post('/api/data', { id: i, name: `Item ${i}` })
     );
     
     const responses = await Promise.all(requests);
     
-    // All requests should succeed with correct data
     responses.forEach((response, index) => {
       expect(response.status).toBe(201);
       expect(response.body.processed).toBe(true);

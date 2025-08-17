@@ -37,7 +37,7 @@ describe('HTTP DELETE Method', () => {
       method: 'DELETE',
       path: '/item',
       status: 204
-      // No body field at all
+      
     }]);
     
     serverManager.createMockFile(context.mockDir, 'delete2.yaml', yamlContent);

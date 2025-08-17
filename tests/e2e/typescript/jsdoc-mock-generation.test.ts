@@ -19,7 +19,6 @@ describe('JSDOC_MOCK_GENERATION', () => {
   it('should generate realistic mock data from TypeScript interfaces with JSDoc', async () => {
     context = await createTestContext();
     
-    // Create interface with JSDoc @mock annotations
     const tsContent = `
 interface Product {
   /** @mock () => Math.floor(Math.random() * 1000) + 1 */
@@ -52,7 +51,6 @@ export default Product;`;
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
     
-    // Should generate specific mock data from JSDoc comments
     const product = Array.isArray(response.body) ? response.body[0] : response.body;
     
     expect(typeof product.id).toBe('number');

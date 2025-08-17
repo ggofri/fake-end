@@ -31,7 +31,6 @@ async function processTypeScriptFile(filePath: string, mockDir: string): Promise
   try {
     const content = await readFile(filePath, 'utf-8');
     
-    //Use cached interface parsing
     const parsed = parseInterfaceWithCache(filePath, content);
     if (!parsed) return null;
     

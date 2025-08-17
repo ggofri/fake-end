@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import unusedImports from "eslint-plugin-unused-imports";
+import banComments from "eslint-plugin-ban-comments";
 
 export default tseslint.config(
   js.configs.recommended,
@@ -11,6 +12,7 @@ export default tseslint.config(
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     plugins: {
       "unused-imports": unusedImports,
+      "ban-comments": banComments,
     },
     languageOptions: {
       globals: {
@@ -18,7 +20,7 @@ export default tseslint.config(
         ...globals.es2022,
       },
       parserOptions: {
-        project: "./tsconfig.json",
+        project: "tsconfig.json",
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -44,7 +46,8 @@ export default tseslint.config(
           "argsIgnorePattern": "^_",
         },
       ],
-      "spaced-comment": ["error", "never"],
+      "ban-comments/ban-comments": "error",
+      "spaced-comment": ["error", "always"],
       "line-comment-position": ["error", { "position": "above" }],
       "no-inline-comments": "error",
       "multiline-comment-style": ["error", "starred-block"],
@@ -96,7 +99,8 @@ export default tseslint.config(
       "**/logger.ts",
       "**/logging/**/*.ts", 
       "**/cli/**/*.ts",
-      "**/run.ts"
+      "**/run.ts",
+      "tests/**"
     ],
     rules: {
       "no-console": "off",
@@ -112,17 +116,51 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/__tests__/**/*", "**/*.test.ts", "**/*.spec.ts", "tests/**/*"],
+    languageOptions: {
+      parserOptions: {
+        project: "tsconfig.test.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      "no-restricted-imports": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-type-assertion": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "max-lines-per-function": "off",
+      "no-magic-numbers": "off",
+      "complexity": "off",
+      "max-params": "off",
+      "max-depth": "off",
+      "prefer-destructuring": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "spaced-comment": ["error", "always"],
+    },
+  },
+  {
     ignores: [
       "dist/**/*",
       "node_modules/**/*",
       "coverage/**/*",
-      "*.config.js",
-      "eslint.config.js",
+      "*.config.ts",
+      "eslint.config.ts",
       "mock_server/**/*",
       "bin.js",
       "register.js",
-      "scripts/**/*.js",
-      "tests/**/*",
+      "scripts/**/*",
     ],
   }
 );

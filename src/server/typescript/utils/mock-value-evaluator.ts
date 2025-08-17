@@ -1,6 +1,6 @@
 export function evaluateArrowFunction(expression: string): unknown {
   try {
-    //eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return eval(expression)();
   } catch {
     return null;

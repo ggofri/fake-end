@@ -55,7 +55,6 @@ describe('EndpointValidator', () => {
       const incompleteEndpoint = {
         method: 'GET',
         path: '/users'
-        // missing status and body
       };
 
       mockIsObject.mockReturnValue(true);
@@ -69,10 +68,10 @@ describe('EndpointValidator', () => {
 
     it('should return false when property types are invalid', () => {
       const invalidTypesEndpoint = {
-        method: 123, // should be string
+        method: 123,
         path: '/users',
-        status: '200', // should be number
-        body: 'invalid' // can be any type, so this should be valid
+        status: '200',
+        body: 'invalid'
       };
 
       mockIsObject.mockReturnValue(true);
@@ -113,25 +112,21 @@ describe('EndpointValidator', () => {
 
       const typeValidationsCall = mockHasValidPropertyTypes.mock.calls[0][1];
       
-      // Test method validation
       expect(typeValidationsCall.method('GET')).toBe(true);
       expect(typeValidationsCall.method(123)).toBe(false);
       expect(typeValidationsCall.method('')).toBe(true);
       expect(typeValidationsCall.method(null)).toBe(false);
 
-      // Test path validation
       expect(typeValidationsCall.path('/users')).toBe(true);
       expect(typeValidationsCall.path(123)).toBe(false);
       expect(typeValidationsCall.path('')).toBe(true);
       expect(typeValidationsCall.path(null)).toBe(false);
 
-      // Test status validation
       expect(typeValidationsCall.status(200)).toBe(true);
       expect(typeValidationsCall.status('200')).toBe(false);
       expect(typeValidationsCall.status(0)).toBe(true);
       expect(typeValidationsCall.status(null)).toBe(false);
 
-      // Test body validation (accepts any defined value)
       expect(typeValidationsCall.body({})).toBe(true);
       expect(typeValidationsCall.body([])).toBe(true);
       expect(typeValidationsCall.body('')).toBe(true);
@@ -264,7 +259,6 @@ describe('EndpointValidator', () => {
 
       expect(result).toBe(false);
     });
-
 
     it('should short-circuit on first validation failure', () => {
       mockIsObject.mockReturnValue(false);

@@ -19,7 +19,6 @@ describe('NO_MOCK_COMMENT_HANDLING', () => {
   it('should handle TypeScript files without @mock comments', async () => {
     context = await createTestContext();
     
-    // Create TypeScript file without @mock comment
     const tsContent = `
 interface RegularInterface {
   id: number;
@@ -33,7 +32,6 @@ export default RegularInterface;`;
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Should not create endpoint (no @mock comment)
     try {
       await context.client.get('/regular');
       throw new Error('Should have returned 404');

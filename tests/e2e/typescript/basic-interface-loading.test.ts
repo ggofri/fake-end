@@ -19,7 +19,6 @@ describe('BASIC_INTERFACE_LOADING', () => {
   it('should load TypeScript interface files as mock endpoints', async () => {
     context = await createTestContext();
     
-    // Create a TypeScript interface file with @mock comment
     const tsContent = `
 interface User {
   id: number;
@@ -37,13 +36,11 @@ export default User;`;
     await context.server.cleanup();
     context = await createTestContext({ mockDir: context.mockDir });
     
-    // Should generate a mock endpoint from the interface
     const response = await context.client.get('/users');
     
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
     
-    // Response should have properties matching the interface
     if (Array.isArray(response.body)) {
       const user = response.body[0];
       expect(typeof user.id).toBe('number');

@@ -127,7 +127,8 @@ describe('TypeScript Index Module', () => {
 
       validEndpoints.forEach(endpoint => {
         expect(() => {
-          const _: TypeScriptEndpoint = endpoint;
+          const _unused: TypeScriptEndpoint = endpoint;
+          void _unused; 
         }).not.toThrow();
       });
     });

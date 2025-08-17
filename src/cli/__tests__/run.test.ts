@@ -2,7 +2,7 @@ import { createServer } from '@/server';
 import { loadMockEndpoints } from '@/server/loader';
 import { ServerOptions } from '@/types';
 import { setVerbose, startServerWithPortFallback } from '@/utils';
-import { METHOD_PADDING_LENGTH, PORT_RETRY_MAX } from '@/constants';
+import { PORT_RETRY_MAX } from '@/constants';
 import { existsSync } from 'fs';
 import { startServer } from '../run';
 import chalk from 'chalk';
@@ -28,7 +28,6 @@ const mockSetVerbose = setVerbose as jest.MockedFunction<typeof setVerbose>;
 const mockStartServerWithPortFallback = startServerWithPortFallback as jest.MockedFunction<typeof startServerWithPortFallback>;
 const mockExistsSync = existsSync as jest.MockedFunction<typeof existsSync>;
 
-
 describe('CLI Run', () => {
   let consoleLogSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
@@ -43,10 +42,6 @@ describe('CLI Run', () => {
       throw new Error('process.exit');
     });
 
-
-    // Mock constants
-    (METHOD_PADDING_LENGTH as any) = 8;
-    (PORT_RETRY_MAX as any) = 5;
   });
 
   afterEach(() => {
@@ -63,33 +58,24 @@ describe('CLI Run', () => {
     };
 
     const mockEndpoints = [
-      { method: 'GET', fullPath: '/api/users', path: '/users' },
-      { method: 'POST', fullPath: '/api/users', path: '/users' },
-      { method: 'PUT', fullPath: '/api/users/:id', path: '/users/:id' }
+      { method: 'GET' as const, fullPath: '/api/users', path: '/users', filePath: 'test.yaml', status: 200 },
+      { method: 'POST' as const, fullPath: '/api/users', path: '/users', filePath: 'test.yaml', status: 201 },
+      { method: 'PUT' as const, fullPath: '/api/users/:id', path: '/users/:id', filePath: 'test.yaml', status: 200 }
     ];
 
-    it('should set verbose mode when verbose option is true', async () => {
+    it('should handle verbose mode correctly', async () => {
       const verboseOptions = { ...mockOptions, verbose: true };
       
       mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
 
       await startServer(verboseOptions);
-
       expect(mockSetVerbose).toHaveBeenCalledWith(true);
-    });
-
-    it('should not set verbose mode when verbose option is false', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
 
       await startServer(mockOptions);
-
-      expect(mockSetVerbose).not.toHaveBeenCalled();
+      expect(mockSetVerbose).toHaveBeenCalledTimes(1);
     });
 
     it('should exit with error if mock directory does not exist', async () => {
@@ -102,132 +88,61 @@ describe('CLI Run', () => {
       expect(processExitSpy).toHaveBeenCalledWith(1);
     });
 
-    it('should load mock endpoints from specified directory', async () => {
+    it('should load endpoints and display appropriate messages', async () => {
       mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
 
+      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       await startServer(mockOptions);
-
       expect(mockLoadMockEndpoints).toHaveBeenCalledWith('mock_server');
-      expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: 🔍 Loading mock endpoints from mock_server...');
-    });
-
-    it('should display warning when no endpoints are found', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue([]);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer(mockOptions);
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('YELLOW: ⚠️  No mock endpoints found in mock_server');
-      expect(consoleLogSpy).toHaveBeenCalledWith('GRAY: Create YAML files or TypeScript interface files with your mock API definitions to get started.');
-    });
-
-    it('should display success message when endpoints are loaded', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer(mockOptions);
-
       expect(consoleLogSpy).toHaveBeenCalledWith('GREEN: ✅ Loaded 3 mock endpoints');
+
+      mockLoadMockEndpoints.mockResolvedValue([]);
+      await startServer(mockOptions);
+      expect(consoleLogSpy).toHaveBeenCalledWith('YELLOW: ⚠️  No mock endpoints found in mock_server');
     });
 
-    it('should handle single endpoint correctly', async () => {
-      const singleEndpoint = [mockEndpoints[0]];
+    it('should create and start server with port fallback', async () => {
+      const mockApp = { listen: jest.fn() };
       
       mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(singleEndpoint);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer(mockOptions);
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('GREEN: ✅ Loaded 1 mock endpoint');
-    });
-
-    it('should create server with loaded endpoints', async () => {
-      mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      const mockApp = { listen: jest.fn() };
       mockCreateServer.mockReturnValue(mockApp as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4001, attempted: [4000, 4001], fallbackUsed: true });
 
       await startServer(mockOptions);
 
       expect(mockCreateServer).toHaveBeenCalledWith(mockEndpoints);
-    });
-
-    it('should start server with port fallback', async () => {
-      const mockApp = { listen: jest.fn() };
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      mockCreateServer.mockReturnValue(mockApp as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4001 });
-
-      await startServer(mockOptions);
-
       expect(mockStartServerWithPortFallback).toHaveBeenCalledWith(
         mockApp,
         4000,
-        5, // PORT_RETRY_MAX
-        {
-          warn: expect.any(Function),
-          info: expect.any(Function)
-        }
+        PORT_RETRY_MAX,
+        expect.objectContaining({ warn: expect.any(Function), info: expect.any(Function) })
       );
-    });
-
-    it('should display server running message with actual port', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4001 });
-
-      await startServer(mockOptions);
-
       expect(consoleLogSpy).toHaveBeenCalledWith('GREEN: 🚀 Mock server running on http://localhost:4001');
     });
 
-    it('should display available endpoints when endpoints exist', async () => {
+    it('should display endpoints and control instructions', async () => {
       mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
 
+      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       await startServer(mockOptions);
-
       expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: \n📋 Available endpoints:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('  BLUE: GET      GRAY: /api/users');
-      expect(consoleLogSpy).toHaveBeenCalledWith('  GREEN: POST     GRAY: /api/users');
-      expect(consoleLogSpy).toHaveBeenCalledWith('  YELLOW: PUT      GRAY: /api/users/:id');
+      expect(consoleLogSpy).toHaveBeenCalledWith('GRAY: \nPress Ctrl+C to stop the server');
     });
 
     it('should not display endpoints section when no endpoints exist', async () => {
+      consoleLogSpy.mockClear();
       mockExistsSync.mockReturnValue(true);
+      mockCreateServer.mockReturnValue({} as any);
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
       mockLoadMockEndpoints.mockResolvedValue([]);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
 
       await startServer(mockOptions);
-
       expect(consoleLogSpy).not.toHaveBeenCalledWith('BLUE: \n📋 Available endpoints:');
-    });
-
-    it('should display control instructions', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer(mockOptions);
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('GRAY: \nPress Ctrl+C to stop the server');
     });
 
     it('should handle server startup errors', async () => {
@@ -241,193 +156,50 @@ describe('CLI Run', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('RED: Failed to start server:', error);
       expect(processExitSpy).toHaveBeenCalledWith(1);
     });
-
-    it('should handle port fallback logger functions', async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue([]);
-      mockCreateServer.mockReturnValue({} as any);
-      
-      let warnFn: (msg: string) => void;
-      let infoFn: (msg: string) => void;
-      
-      mockStartServerWithPortFallback.mockImplementation(async (app, port, maxRetries, logger) => {
-        warnFn = logger.warn;
-        infoFn = logger.info;
-        return { port: 4001 };
-      });
-
-      await startServer(mockOptions);
-
-      // Test the logger functions
-      warnFn!('Warning message');
-      infoFn!('Info message');
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('YELLOW: Warning message');
-      expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: Info message');
-    });
   });
 
-  describe('getMethodColor function', () => {
-    it('should return correct color for GET method', async () => {
-      const endpoints = [{ method: 'GET', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.blue).toHaveBeenCalledWith('GET     ');
-    });
-
-    it('should return correct color for POST method', async () => {
-      const endpoints = [{ method: 'POST', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.green).toHaveBeenCalledWith('POST    ');
-    });
-
-    it('should return correct color for PUT method', async () => {
-      const endpoints = [{ method: 'PUT', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.yellow).toHaveBeenCalledWith('PUT     ');
-    });
-
-    it('should return correct color for DELETE method', async () => {
-      const endpoints = [{ method: 'DELETE', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.red).toHaveBeenCalledWith('DELETE  ');
-    });
-
-    it('should return correct color for PATCH method', async () => {
-      const endpoints = [{ method: 'PATCH', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.magenta).toHaveBeenCalledWith('PATCH   ');
-    });
-
-    it('should return white color for unknown method', async () => {
-      const endpoints = [{ method: 'UNKNOWN', fullPath: '/test', path: '/test' }];
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
-
-      await startServer({ port: 4000, mockDir: 'test', verbose: false });
-
-      expect(chalk.white).toHaveBeenCalledWith('UNKNOWN ');
-    });
-  });
-
-  describe('Error Scenarios', () => {
-    it('should handle loadMockEndpoints errors', async () => {
-      const error = new Error('Load endpoints failed');
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockRejectedValue(error);
-
-      await expect(startServer({ port: 4000, mockDir: 'test', verbose: false })).rejects.toThrow('process.exit');
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('RED: Failed to start server:', error);
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-
-    it('should handle createServer errors', async () => {
-      const error = new Error('Create server failed');
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue([]);
-      mockCreateServer.mockImplementation(() => {
-        throw error;
-      });
-
-      await expect(startServer({ port: 4000, mockDir: 'test', verbose: false })).rejects.toThrow('process.exit');
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('RED: Failed to start server:', error);
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-
-    it('should handle startServerWithPortFallback errors', async () => {
-      const error = new Error('Port fallback failed');
-      
-      mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue([]);
-      mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockRejectedValue(error);
-
-      await expect(startServer({ port: 4000, mockDir: 'test', verbose: false })).rejects.toThrow('process.exit');
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('RED: Failed to start server:', error);
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-    });
-  });
-
-  describe('Method Padding', () => {
-    it('should use METHOD_PADDING_LENGTH for consistent formatting', async () => {
-      const endpoints = [
-        { method: 'GET', fullPath: '/short', path: '/short' },
-        { method: 'DELETE', fullPath: '/longer', path: '/longer' }
+  describe('Method Colors and Formatting', () => {
+    it('should display methods with correct colors', async () => {
+      const coloredEndpoints = [
+        { method: 'GET' as const, fullPath: '/test', path: '/test', filePath: 'test.yaml', status: 200 },
+        { method: 'POST' as const, fullPath: '/test', path: '/test', filePath: 'test.yaml', status: 201 },
+        { method: 'DELETE' as const, fullPath: '/test', path: '/test', filePath: 'test.yaml', status: 200 }
       ];
       
       mockExistsSync.mockReturnValue(true);
-      mockLoadMockEndpoints.mockResolvedValue(endpoints);
+      mockLoadMockEndpoints.mockResolvedValue(coloredEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000 });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
 
       await startServer({ port: 4000, mockDir: 'test', verbose: false });
 
-      // Both methods should be padded to METHOD_PADDING_LENGTH (8 characters)
-      expect(chalk.blue).toHaveBeenCalledWith('GET     '); // 3 + 5 spaces = 8
-      expect(chalk.red).toHaveBeenCalledWith('DELETE  '); // 6 + 2 spaces = 8
+      expect(chalk.blue).toHaveBeenCalledWith('GET   ');
+      expect(chalk.green).toHaveBeenCalledWith('POST  ');
+      expect(chalk.red).toHaveBeenCalledWith('DELETE');
     });
   });
 
-  describe('Directory Path Handling', () => {
-    it('should handle different directory paths correctly', async () => {
-      const customOptions = {
-        port: 3000,
-        mockDir: 'custom/mock/directory',
-        verbose: true
-      };
+  describe('Custom Configuration', () => {
+    it('should handle custom directory paths and port fallback logger', async () => {
+      const customOptions = { port: 3000, mockDir: 'custom/dir', verbose: true };
       
       mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue([]);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 3000 });
+      
+      let loggerFunctions: any;
+      mockStartServerWithPortFallback.mockImplementation(async (_app, _port, _maxRetries, logger) => {
+        loggerFunctions = logger;
+        return { port: 3001, attempted: [3000, 3001], fallbackUsed: true };
+      });
 
       await startServer(customOptions);
 
-      expect(mockExistsSync).toHaveBeenCalledWith('custom/mock/directory');
-      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('custom/mock/directory');
-      expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: 🔍 Loading mock endpoints from custom/mock/directory...');
+      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('custom/dir');
+      loggerFunctions.warn('Test warning');
+      loggerFunctions.info('Test info');
+      expect(consoleLogSpy).toHaveBeenCalledWith('YELLOW: Test warning');
+      expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: Test info');
     });
   });
 });

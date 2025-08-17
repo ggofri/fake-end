@@ -106,10 +106,11 @@ function interpolateString(
   return interpolateStringContent(str, params, query, body);
 }
 
+// eslint-disable-next-line max-params
 export function interpolateParams(
   obj: unknown, 
-  params: Record<string, unknown>, 
-  query: Record<string, unknown>, 
+  params: Record<string, unknown>,
+  query: Record<string, unknown>,
   body: Record<string, unknown>,
   visited: WeakSet<object> = new WeakSet()
 ): unknown {
@@ -118,7 +119,6 @@ export function interpolateParams(
   }
 
   if (Array.isArray(obj)) {
-    // Check for circular reference
     if (visited.has(obj)) {
       return "[circular]";
     }
@@ -130,7 +130,6 @@ export function interpolateParams(
   }
 
   if (obj && typeof obj === "object") {
-    // Check for circular reference
     if (visited.has(obj)) {
       return "[circular]";
     }

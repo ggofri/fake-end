@@ -8,7 +8,7 @@ describe('CLI Core Functionality', () => {
   let serverProcess: ChildProcess | null = null;
 
   beforeEach(() => {
-    // Clean up any existing test directory
+    
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
     }
@@ -16,13 +16,12 @@ describe('CLI Core Functionality', () => {
   });
 
   afterEach(() => {
-    // Kill any running server process
+    
     if (serverProcess && !serverProcess.killed) {
       serverProcess.kill('SIGTERM');
       serverProcess = null;
     }
     
-    // Clean up test directory
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
     }
@@ -30,7 +29,7 @@ describe('CLI Core Functionality', () => {
 
   describe('Server Startup', () => {
     it('should start server successfully with valid mock directory', async () => {
-      // Create a simple mock file
+      
       const yamlContent = createYamlMockFile([
         {
           method: 'GET',
@@ -42,9 +41,8 @@ describe('CLI Core Functionality', () => {
       
       writeFileSync(join(testDir, 'health.yaml'), yamlContent);
       
-      // Start server  
       const binPath = join(process.cwd(), 'bin.js');
-      const testPort = 5001 + Math.floor(Math.random() * 1000); // Random port to avoid conflicts
+      const testPort = 5001 + Math.floor(Math.random() * 1000); 
       const promise = new Promise<void>((resolve, reject) => {
         serverProcess = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
           stdio: ['pipe', 'pipe', 'pipe']
@@ -80,8 +78,7 @@ describe('CLI Core Functionality', () => {
       });
 
       await promise;
-
-      // Verify server is responding
+      
       const response = await fetch(`http://localhost:${testPort}/health`);
       expect(response.status).toBe(200);
       const body = await response.json();
@@ -92,7 +89,7 @@ describe('CLI Core Functionality', () => {
       const nonExistentDir = join(testDir, 'does-not-exist');
       
       const binPath = join(process.cwd(), 'bin.js');
-      const testPort = 5001 + Math.floor(Math.random() * 1000); // Random port to avoid conflicts
+      const testPort = 5001 + Math.floor(Math.random() * 1000); 
       const promise = new Promise<string>((resolve, reject) => {
         serverProcess = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', nonExistentDir], {
           stdio: ['pipe', 'pipe', 'pipe']
@@ -122,7 +119,7 @@ describe('CLI Core Functionality', () => {
     });
 
     it('should handle port already in use scenario', async () => {
-      // Create mock file
+      
       const yamlContent = createYamlMockFile([
         {
           method: 'GET',
@@ -134,14 +131,12 @@ describe('CLI Core Functionality', () => {
       
       writeFileSync(join(testDir, 'test.yaml'), yamlContent);
       
-      // Start first server on random port
       const binPath = join(process.cwd(), 'bin.js');
-      const testPort = 5001 + Math.floor(Math.random() * 1000); // Random port to avoid conflicts
+      const testPort = 5001 + Math.floor(Math.random() * 1000); 
       const firstServer = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
         stdio: ['pipe', 'pipe', 'pipe']
       });
-
-      // Wait for first server to start
+      
       await new Promise<void>((resolve, reject) => {
         let output = '';
         const timeout = setTimeout(() => {
@@ -156,8 +151,7 @@ describe('CLI Core Functionality', () => {
           }
         });
       });
-
-      // Try to start second server on same port - should use fallback
+      
       const secondServerPromise = new Promise<string>((resolve, reject) => {
         const secondServer = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
           stdio: ['pipe', 'pipe', 'pipe']
@@ -173,12 +167,11 @@ describe('CLI Core Functionality', () => {
           output += data.toString();
         });
 
-        secondServer.on('exit', (code) => {
+        secondServer.on('exit', () => {
           clearTimeout(timeout);
           resolve(output);
         });
-
-        // Kill after capturing output
+        
         setTimeout(() => {
           secondServer.kill();
         }, 2000);
@@ -186,10 +179,8 @@ describe('CLI Core Functionality', () => {
 
       const output = await secondServerPromise;
       
-      // Clean up first server
       firstServer.kill('SIGTERM');
       
-      // Should show fallback behavior
       expect(output).toContain('Using fallback port');
       expect(output).toContain(`Mock server running on http://localhost:${testPort + 1}`);
     });
@@ -224,7 +215,7 @@ describe('CLI Core Functionality', () => {
       });
 
       const version = await promise;
-      expect(version).toMatch(/\d+\.\d+\.\d+/); // Should contain version number
+      expect(version).toMatch(/\d+\.\d+\.\d+/); 
     });
 
     it('should display help information', async () => {

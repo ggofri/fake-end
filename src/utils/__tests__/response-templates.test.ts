@@ -6,7 +6,6 @@ import {
 } from '../response-templates';
 
 describe('Response Templates Utils', () => {
-  // Mock Date.now() and Date.prototype.toISOString for consistent testing
   const mockDate = new Date('2023-01-01T12:00:00.000Z');
   const originalDate = Date;
 
@@ -92,7 +91,6 @@ describe('Response Templates Utils', () => {
       const result1 = createResourceResponse('1');
       const result2 = createResourceResponse('2');
       
-      // Both should have the same timestamp since we mocked Date
       expect(result1.createdAt).toBe(result2.createdAt);
       expect(result1.updatedAt).toBe(result2.updatedAt);
     });
@@ -229,11 +227,11 @@ describe('Response Templates Utils', () => {
       const result = createCreatedResponse('new-id', data);
       
       expect(result).toEqual({
-        id: 'new-id', // Should override data.id
-        message: 'Resource created successfully', // Should override data.message
-        createdAt: '2023-01-01T12:00:00.000Z', // Should override data.createdAt
+        id: 'new-id',
+        message: 'Resource created successfully',
+        createdAt: '2023-01-01T12:00:00.000Z',
         updatedAt: '2023-01-01T12:00:00.000Z',
-        name: 'John' // Should keep data.name
+        name: 'John'
       });
     });
 
@@ -341,10 +339,10 @@ describe('Response Templates Utils', () => {
       const result = createUpdatedResponse('new-id', data);
       
       expect(result).toEqual({
-        id: 'new-id', // Should override data.id
-        message: 'Resource updated successfully', // Should override data.message
-        updatedAt: '2023-01-01T12:00:00.000Z', // Should override data.updatedAt
-        name: 'Jane' // Should keep data.name
+        id: 'new-id',
+        message: 'Resource updated successfully',
+        updatedAt: '2023-01-01T12:00:00.000Z',
+        name: 'Jane'
       });
     });
 
@@ -386,7 +384,7 @@ describe('Response Templates Utils', () => {
       
       expect(result.name).toBe('Test');
       expect(typeof result.calculate).toBe('function');
-      expect(result.calculate()).toBe('result');
+      expect(typeof result.calculate === 'function' && result.calculate()).toBe('result');
     });
 
     it('should return object with correct property types', () => {
@@ -442,21 +440,20 @@ describe('Response Templates Utils', () => {
       
       const result = createCreatedResponse('large-123', largeData);
       
-      expect(Object.keys(result)).toHaveLength(1004); // 1000 + id, message, createdAt, updatedAt
+      expect(Object.keys(result)).toHaveLength(1004);
       expect(result.id).toBe('large-123');
       expect(result.message).toBe('Resource created successfully');
     });
 
     it('should handle circular references in data (spread operator limitation)', () => {
       const data: any = { name: 'Test' };
-      data.self = data; // Create circular reference
+      data.self = data;
       
-      // This should not throw an error during spread, but the circular ref might be lost
       expect(() => createCreatedResponse('circular-123', data)).not.toThrow();
     });
 
     it('should preserve symbol properties if present', () => {
-      const symbol = Symbol('test');
+      const symbol: symbol = Symbol('test');
       const data = {
         name: 'Test',
         [symbol]: 'symbol value'
@@ -465,7 +462,7 @@ describe('Response Templates Utils', () => {
       const result = createCreatedResponse('symbol-123', data);
       
       expect(result.name).toBe('Test');
-      expect(result[symbol]).toBe('symbol value');
+      expect(result[symbol as any]).toBe('symbol value');
     });
   });
 });

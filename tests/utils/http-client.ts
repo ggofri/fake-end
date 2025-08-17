@@ -18,7 +18,7 @@ export class HttpClient {
   private baseUrl: string;
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    this.baseUrl = baseUrl.replace(/\/$/, ''); 
   }
 
   async request(path: string, options: RequestOptions = {}): Promise<HttpResponse> {
@@ -32,9 +32,8 @@ export class HttpClient {
 
     const startTime = Date.now();
     
-    let url = `${this.baseUrl}${path.startsWith('/') ? path : '/' + path}`;
+    let url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
     
-    // Add query parameters
     if (queryParams && Object.keys(queryParams).length > 0) {
       const searchParams = new URLSearchParams(queryParams);
       url += `?${searchParams.toString()}`;
@@ -67,8 +66,7 @@ export class HttpClient {
       } else {
         responseBody = await response.text();
       }
-
-      // Convert Headers to plain object
+      
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
@@ -82,8 +80,6 @@ export class HttpClient {
         responseTime
       };
     } catch (error) {
-      const responseTime = Date.now() - startTime;
-      
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
