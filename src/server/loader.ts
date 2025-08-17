@@ -10,11 +10,14 @@ import chalk from 'chalk';
 import { isArrayOfMockEndpoints } from '@/cli/generate';
 import { isValidEndpoint } from './validators';
 
-export async function loadMockEndpoints(mockDir: string): Promise<ParsedEndpoint[]> {
+export async function loadMockEndpoints(
+  mockDir: string, 
+  options?: { noCache?: boolean; dynamicMocks?: boolean }
+): Promise<ParsedEndpoint[]> {
   const endpoints: ParsedEndpoint[] = [];
 
   try {
-    const tsEndpoints = await loadTypeScriptEndpoints(mockDir);
+    const tsEndpoints = await loadTypeScriptEndpoints(mockDir, options);
     endpoints.push(...tsEndpoints);
     if (tsEndpoints.length > 0) {
       verboseLog(chalk.green(`✅ Loaded ${tsEndpoints.length} TypeScript interface endpoint${tsEndpoints.length > 1 ? 's' : ''}`));

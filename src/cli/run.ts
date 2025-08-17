@@ -7,7 +7,7 @@ import chalk from 'chalk';
 import { existsSync } from 'fs';
 
 export async function startServer(options: ServerOptions): Promise<void> {
-  const { port, mockDir, verbose } = options;
+  const { port, mockDir, verbose, noCache, dynamicMocks } = options;
   
   if (verbose) {
     setVerbose(true);
@@ -21,7 +21,10 @@ export async function startServer(options: ServerOptions): Promise<void> {
 
   try {
     console.log(chalk.blue(`🔍 Loading mock endpoints from ${mockDir}...`));
-    const endpoints = await loadMockEndpoints(mockDir);
+    const endpoints = await loadMockEndpoints(mockDir, { 
+      ...(noCache && { noCache }), 
+      ...(dynamicMocks && { dynamicMocks }) 
+    });
 
     if (endpoints.length === 0) {
       console.log(chalk.yellow(`⚠️  No mock endpoints found in ${mockDir}`));

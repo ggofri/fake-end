@@ -7,6 +7,8 @@ interface RunOptions {
   port: string;
   dir: string;
   verbose?: boolean;
+  noCache?: boolean;
+  dynamicMocks?: boolean;
 }
 
 interface GenerateOptions {
@@ -32,12 +34,16 @@ program
   .option('-p, --port <port>', 'Port to run the server on', '4000')
   .option('-d, --dir <directory>', 'Directory containing mock YAML files', 'mock_server')
   .option('-v, --verbose', 'Enable verbose logging')
+  .option('--no-cache', 'Disable TypeScript interface caching for development')
+  .option('--dynamic-mocks', 'Execute mock functions on each request instead of at startup')
   .action(async (options: RunOptions) => {
     try {
       await startServer({
         port: parseInt(options.port, 10),
         mockDir: options.dir,
-        verbose: options.verbose ?? false
+        verbose: options.verbose ?? false,
+        noCache: options.noCache ?? false,
+        dynamicMocks: options.dynamicMocks ?? false
       });
     } catch (error) {
       console.error(chalk.red('Error starting server:'), error);

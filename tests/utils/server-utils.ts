@@ -108,6 +108,8 @@ export class TestServerManager {
     
     await this.stopServer(port);
     
+    await this.waitForPortToBeAvailable(port);
+    
     const newServer = await this.startServer({ port, mockDir });
     
     server.process = newServer.process;
@@ -215,6 +217,16 @@ export class TestServerManager {
     } catch {
       return true;
     }
+  }
+
+  async waitForPortToBeAvailable(port: number, maxAttempts = 20): Promise<void> {
+    for (let i = 0; i < maxAttempts; i++) {
+      if (await this.isPortAvailable(port)) {
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    throw new Error(`Port ${port} did not become available after ${maxAttempts * 100}ms`);
   }
 }
 

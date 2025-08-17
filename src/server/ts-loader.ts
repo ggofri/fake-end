@@ -12,14 +12,17 @@ import type { TypeScriptEndpoint } from './typescript/';
 import { verboseError } from '@/utils';
 import chalk from 'chalk';
 
-export async function loadTypeScriptEndpoints(mockDir: string): Promise<ParsedEndpoint[]> {
+export async function loadTypeScriptEndpoints(
+  mockDir: string,
+  options?: { noCache?: boolean; dynamicMocks?: boolean }
+): Promise<ParsedEndpoint[]> {
   const tsFiles = await glob(`${mockDir}/**/*.ts`, { absolute: true });
   if (tsFiles.length === 0) return [];
 
   const endpoints: ParsedEndpoint[] = [];
 
   for (const filePath of tsFiles) {
-    const endpoint = await processTypeScriptFile(filePath, mockDir);
+    const endpoint = await processTypeScriptFile(filePath, mockDir, options);
     if (endpoint) {
       endpoints.push(endpoint);
     }
@@ -28,17 +31,21 @@ export async function loadTypeScriptEndpoints(mockDir: string): Promise<ParsedEn
   return endpoints;
 }
 
-async function processTypeScriptFile(filePath: string, mockDir: string): Promise<ParsedEndpoint | null> {
+async function processTypeScriptFile(
+  filePath: string, 
+  mockDir: string,
+  options?: { noCache?: boolean; dynamicMocks?: boolean }
+): Promise<ParsedEndpoint | null> {
   try {
     const content = await readFile(filePath, 'utf-8');
     
-    const parsed = parseInterfaceWithCache(filePath, content);
+    const parsed = parseInterfaceWithCache(filePath, content, options?.noCache);
     if (!parsed) return null;
     
     const { interface: interfaceDeclaration } = parsed;
 
     const { httpMethod, endpointPath } = extractEndpointInfoFromPath(filePath, mockDir);
-    const mockData = generateMockFromInterface(interfaceDeclaration);
+    const mockData = generateMockFromInterface(interfaceDeclaration, options?.dynamicMocks);
     const guard = extractGuardFromInterface(interfaceDeclaration);
     
     const endpoint: TypeScriptEndpoint = {
@@ -46,7 +53,11 @@ async function processTypeScriptFile(filePath: string, mockDir: string): Promise
       path: endpointPath,
       status: 200,
       body: mockData,
-      ...(guard && { guard })
+      ...(guard && { guard }),
+      ...(options?.dynamicMocks && { 
+        _interfaceDeclaration: interfaceDeclaration,
+        _dynamicMocks: true 
+      })
     };
 
     return isValidTypeScriptEndpoint(endpoint) ? {

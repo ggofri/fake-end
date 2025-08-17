@@ -3,7 +3,7 @@ import { extractMockTagValue } from './jsdoc-extractor';
 import { evaluateArrowFunction, tryParseJson, isArrowFunction } from './mock-value-evaluator';
 import { isNil } from '@/utils';
 
-export function resolveMockValue(prop?: PropertySignature): unknown {
+export function resolveMockValue(prop?: PropertySignature, isDynamic?: boolean): unknown {
   if (!prop) return undefined;
 
   const mockValue = extractMockTagValue(prop);
@@ -15,6 +15,9 @@ export function resolveMockValue(prop?: PropertySignature): unknown {
   }
 
   if (isArrowFunction(mockValue)) {
+    if (isDynamic) {
+      return { _dynamicFunction: mockValue };
+    }
     return evaluateArrowFunction(mockValue);
   }
 

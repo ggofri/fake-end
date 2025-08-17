@@ -60,8 +60,8 @@ describe('TypeScript Index Module', () => {
     it('should have correct function signatures for all exports', () => {
       expect(createTypeScriptProject.length).toBe(0);
       expect(extractDefaultInterface.length).toBe(1);
-      expect(parseInterfaceWithCache.length).toBe(2);
-      expect(generateMockFromInterface.length).toBe(1);
+      expect(parseInterfaceWithCache.length).toBe(3);
+      expect(generateMockFromInterface.length).toBe(2);
       expect(isValidTypeScriptEndpoint.length).toBe(1);
       expect(extractEndpointInfoFromPath.length).toBe(2);
     });

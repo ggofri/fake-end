@@ -98,10 +98,10 @@ describe('CLI Index', () => {
       mockStartServer.mockResolvedValue();
 
       await runActionCallback({ port: '3000', dir: 'test_dir', verbose: true });
-      expect(mockStartServer).toHaveBeenCalledWith({ port: 3000, mockDir: 'test_dir', verbose: true });
+      expect(mockStartServer).toHaveBeenCalledWith({ port: 3000, mockDir: 'test_dir', verbose: true, noCache: false, dynamicMocks: false });
 
       await runActionCallback({ port: '4000', dir: 'mock_server' });
-      expect(mockStartServer).toHaveBeenCalledWith({ port: 4000, mockDir: 'mock_server', verbose: false });
+      expect(mockStartServer).toHaveBeenCalledWith({ port: 4000, mockDir: 'mock_server', verbose: false, noCache: false, dynamicMocks: false });
     });
 
     it('should handle startServer errors', async () => {

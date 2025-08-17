@@ -11,7 +11,7 @@ import {
 } from '@/constants';
 import { resolveMockValue } from '@/server/typescript/utils';
 
-export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): Record<string, unknown> {
+export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration, isDynamic?: boolean): Record<string, unknown> {
   const mockData: Record<string, unknown> = {};
   const properties = interfaceDecl.getProperties();
   
@@ -22,7 +22,7 @@ export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): 
       const isOptional = prop.hasQuestionToken();
       
       if (!isOptional) {
-        mockData[name] = generateMockValue(typeNode, name, prop);
+        mockData[name] = generateMockValue(typeNode, name, prop, isDynamic);
       }
     }
   }
@@ -30,8 +30,8 @@ export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration): 
   return mockData;
 }
 
-function generateMockValue(typeNode: TypeNode | undefined, propertyName: string, prop?: PropertySignature): unknown {
-  const mockValue = resolveMockValue(prop);
+function generateMockValue(typeNode: TypeNode | undefined, propertyName: string, prop?: PropertySignature, isDynamic?: boolean): unknown {
+  const mockValue = resolveMockValue(prop, isDynamic);
   if (mockValue !== undefined) {
     return mockValue;
   }
