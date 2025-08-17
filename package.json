@@ -13,8 +13,9 @@
   "scripts": {
     "dev": "tsx src/cli/index.ts",
     "start": "bun bin.js",
-    "build": "rm -rf dist && bun run tsc && tsc-alias --resolve-full-paths",
-    "tsc": "tsc && tsc --project tsconfig.test.json",
+    "build": "rm -rf dist && bun run tsc",
+    "tsc": "tsc && tsc --project tsconfig.test.json && tsc-alias --resolve-full-paths",
+    "tsc:no-emit": "tsc --no-emit && tsc --project tsconfig.test.json --no-emit",
     "lint": "eslint --ext .ts",
     "lint:fix": "eslint --ext .ts --fix",
     "test": "bun test:unit && bun test:e2e",
