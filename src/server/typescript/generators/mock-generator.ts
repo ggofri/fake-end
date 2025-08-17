@@ -10,6 +10,7 @@ import {
   ID_SUBSTRING_LENGTH
 } from '@/constants';
 import { resolveMockValue } from '@/server/typescript/utils';
+import { generateRealisticValue } from '@/server/typescript/utils/realistic-value-generator';
 
 export function generateMockFromInterface(interfaceDecl: InterfaceDeclaration, isDynamic?: boolean, body?: unknown): Record<string, unknown> {
   const mockData: Record<string, unknown> = {};
@@ -57,6 +58,11 @@ function generateDefaultMockValue(typeNode: TypeNode | undefined, propertyName: 
   if (!typeNode) return null;
 
   const typeText = typeNode.getKindName();
+  
+  const realisticValue = generateRealisticValue(propertyName, typeText);
+  if (realisticValue !== null) {
+    return realisticValue;
+  }
   
   switch (typeText) {
     case 'StringKeyword': return generateStringValue(propertyName);
