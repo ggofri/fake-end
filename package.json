@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
@@ -28,7 +28,7 @@
     "test:cleanup": "bun scripts/cleanup-tests.mjs",
     "prepare": "husky",
     "prepublishOnly": "bun run build",
-    "verify": "tsc --noEmit && bun run lint && bun test:unit:coverage && bun test:e2e",
+    "verify": "bun run build && bun run lint && bun test:unit:coverage && bun test:e2e",
     "publish": "bun run prepublishOnly && bun publish --access public"
   },
   "keywords": [
