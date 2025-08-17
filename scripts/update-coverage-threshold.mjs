@@ -9,19 +9,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const COVERAGE_INCREMENT = 5;
-const CONFIG_FILE = path.join(__dirname, '../src/config/test.ts');
+const CONFIG_FILE = path.join(__dirname, '../jest.config.ts');
 
 function getCurrentThreshold() {
   const configContent = fs.readFileSync(CONFIG_FILE, 'utf8');
-  const match = configContent.match(/COVERAGE:\s*(\d+)/);
+  const match = configContent.match(/const COVERAGE_THRESHOLD = \s*(\d+)/);
   return match ? parseInt(match[1], 10) : 30;
 }
 
 function updateThreshold(newThreshold) {
   const configContent = fs.readFileSync(CONFIG_FILE, 'utf8');
   const updatedContent = configContent.replace(
-    /COVERAGE:\s*\d+/,
-    `COVERAGE: ${newThreshold}`
+    /const COVERAGE_THRESHOLD = \s*\d+/,
+    `const COVERAGE_THRESHOLD = ${newThreshold}`
   );
   fs.writeFileSync(CONFIG_FILE, updatedContent);
   console.log(`✅ Updated coverage threshold from ${getCurrentThreshold()} to ${newThreshold}%`);
@@ -64,7 +64,6 @@ function main() {
   console.log(`📊 Current threshold: ${currentThreshold}%`);
   console.log(`📈 Actual coverage: ${actualCoverage}%`);
   
-  // Calculate the maximum possible threshold based on actual coverage
   const newThreshold = actualCoverage - (actualCoverage % COVERAGE_INCREMENT);
   
   if (newThreshold > currentThreshold) {

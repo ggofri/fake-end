@@ -18,15 +18,6 @@
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": false,
     "noImplicitOverride": false,
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "@/types": ["src/types/index"],
-      "@/server/*": ["src/server/*"],
-      "@/constants": ["src/constants/index"],
-      "@/cli/*": ["src/cli/*"],
-      "@/utils": ["src/utils/index"]
-    },
   },
   "include": [
     "src/**/__tests__/**/*",

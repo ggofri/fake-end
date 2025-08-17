@@ -1,8 +1,17 @@
-const { TEST_CONFIG } = require('./src/config/test.ts');
+const COVERAGE_THRESHOLD = 30;
 
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts'],
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: {
+        module: 'esnext'
+      }
+    }]
+  },
   roots: ['<rootDir>/tests', 'src'],
   testMatch: ['**/*.test.ts', '**/__tests__/*.test.ts'],
   collectCoverageFrom: [
@@ -13,10 +22,10 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'json-summary'],
   coverageThreshold: {
     global: {
-      lines: TEST_CONFIG.COVERAGE,
-      functions: TEST_CONFIG.COVERAGE,
-      branches: TEST_CONFIG.COVERAGE,
-      statements: TEST_CONFIG.COVERAGE,
+      lines: COVERAGE_THRESHOLD,
+      functions: COVERAGE_THRESHOLD,
+      branches: COVERAGE_THRESHOLD,
+      statements: COVERAGE_THRESHOLD,
     },
   },
   moduleNameMapper: {

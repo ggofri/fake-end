@@ -1,5 +1,6 @@
 {
   "name": "fake-end",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -12,7 +13,7 @@
   "scripts": {
     "dev": "tsx src/cli/index.ts",
     "start": "bun bin.js",
-    "build": "rm -rf dist && bun run tsc",
+    "build": "rm -rf dist && bun run tsc && tsc-alias --resolve-full-paths",
     "tsc": "tsc && tsc --project tsconfig.test.json",
     "lint": "eslint --ext .ts",
     "lint:fix": "eslint --ext .ts --fix",
@@ -25,12 +26,10 @@
     "test:e2e:coverage": "jest tests/e2e/ --coverage",
     "test:e2e:run": "./tests/run-e2e.sh",
     "test:cleanup": "bun scripts/cleanup-tests.mjs",
-    "compile": "bun run build && bun build --compile ./dist/src/index.js --outfile fake-end",
-    "pack": "bun run compile && bun pm pack ./fake-end --filename ./dist/fake-end.tgz",
     "prepare": "husky",
-    "prepublishOnly": "bun run pack",
-    "verify": "bun run tsc && bun run lint && bun run test",
-    "publish": "bun run prepublishOnly && bun publish --access public ./dist/fake-end.tgz"
+    "prepublishOnly": "bun run build",
+    "verify": "tsc --noEmit && bun run lint && bun run test",
+    "publish": "bun run prepublishOnly && bun publish --access public"
   },
   "keywords": [
     "cli",
@@ -46,12 +45,10 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
-    "eslint-plugin-ban-comments": "^1.0.0",
     "express": "^4.18.2",
     "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
-    "ts-morph": "^21.0.1",
-    "tsconfig-paths": "^4.2.0"
+    "ts-morph": "^21.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
@@ -63,14 +60,18 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "eslint": "^9.30.0",
+    "eslint-plugin-ban-comments": "^1.0.1",
     "eslint-plugin-unused-imports": "^4.0.0",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "jest": "^30.0.5",
     "jest-silent-reporter": "^0.6.0",
+    "jiti": "^2.5.1",
     "ts-jest": "^29.4.1",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.6.2",
     "typescript": "^5.3.3",
-    "typescript-eslint": "^8.35.0"
+    "typescript-eslint": "^8.35.0",
+    "tsconfig-paths": "^4.2.0"
   }
 }
