@@ -1,3 +1,5 @@
+import { evaluateFakerFunction, isFakerExpression } from './faker-evaluator';
+
 export function evaluateArrowFunction(expression: string, body?: unknown): unknown {
   try {
     if (isBodyAwareFunction(expression)) {
@@ -36,31 +38,45 @@ function isDynamicFunction(value: unknown): value is { _dynamicFunction: string 
 }
 
 export function evaluateDynamicMocks(data: unknown, body?: unknown): unknown {
-  if (typeof data === 'object' && data !== null) {
-    if (Array.isArray(data)) {
-      return data.map(item => evaluateDynamicMocks(item, body));
-    }
-    
-    if (isDynamicFunction(data)) {
-      return evaluateArrowFunction(data._dynamicFunction, body);
-    }
-    
-    if (isRecord(data)) {
-      const result: Record<string, unknown> = {};
-      
-      for (const [key, value] of Object.entries(data)) {
-        if (isDynamicFunction(value)) {
-          result[key] = evaluateArrowFunction(value._dynamicFunction, body);
-        } else if (typeof value === 'object' && value !== null) {
-          result[key] = evaluateDynamicMocks(value, body);
-        } else {
-          result[key] = value;
-        }
-      }
-      
-      return result;
+  if (typeof data !== 'object' || data === null) {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(item => evaluateDynamicMocks(item, body));
+  }
+
+  if (isDynamicFunction(data)) {
+    return evaluateDynamicFunction(data, body);
+  }
+
+  if (isRecord(data)) {
+    return evaluateRecord(data, body);
+  }
+
+  return data;
+}
+
+function evaluateDynamicFunction(data: { _dynamicFunction: string }, body?: unknown): unknown {
+  const expression = data._dynamicFunction;
+  if (isFakerExpression(expression)) {
+    return evaluateFakerFunction(expression);
+  }
+  return evaluateArrowFunction(expression, body);
+}
+
+function evaluateRecord(data: Record<string, unknown>, body?: unknown): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (isDynamicFunction(value)) {
+      result[key] = evaluateDynamicFunction(value, body);
+    } else if (typeof value === 'object' && value !== null) {
+      result[key] = evaluateDynamicMocks(value, body);
+    } else {
+      result[key] = value;
     }
   }
-  
-  return data;
+
+  return result;
 }
