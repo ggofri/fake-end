@@ -70,7 +70,7 @@ describe('MockValueResolver', () => {
 
       expect(result).toBe(evaluatedValue);
       expect(mockIsArrowFunction).toHaveBeenCalledWith(arrowFunction);
-      expect(mockEvaluateArrowFunction).toHaveBeenCalledWith(arrowFunction);
+      expect(mockEvaluateArrowFunction).toHaveBeenCalledWith(arrowFunction, undefined);
     });
 
     it('should return raw string when not JSON and not arrow function', () => {
