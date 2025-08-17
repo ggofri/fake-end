@@ -159,9 +159,7 @@ export default tseslint.config(
       "coverage/**/*",
       "*.config.ts",
       "eslint.config.ts",
-      "mock_server/**/*",
       "bin.js",
-      "register.js",
       "scripts/**/*",
     ],
   }
