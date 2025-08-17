@@ -33,5 +33,3 @@ jobs:
       - name: Build project
         run: bun run build
       
-      - name: Pack project
-        run: bun run pack
