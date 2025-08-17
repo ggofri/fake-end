@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-require('./dist/src/cli/index.js');
+const { default: path } = require("path");
+
+require(path.join(__dirname, 'dist/src/cli/index.js'));
