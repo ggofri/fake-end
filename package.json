@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
@@ -29,7 +29,7 @@
     "prepare": "husky",
     "prepublishOnly": "bun run build",
     "verify": "bun run build && bun run lint && bun test:unit:coverage && bun test:e2e",
-    "publish": "bun run prepublishOnly && bun publish --access public"
+    "publish": "bun run verify && bun run prepublishOnly && bun publish --access public"
   },
   "keywords": [
     "cli",
