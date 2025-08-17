@@ -11,6 +11,7 @@ export async function createTestContext(options: {
   port?: number;
   mockDir?: string;
   timeout?: number;
+  dynamicMocks?: boolean;
 } = {}): Promise<TestContext> {
   const server = await serverManager.startServer(options);
   const client = createHttpClient(`http://localhost:${server.port}`);

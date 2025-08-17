@@ -61,29 +61,50 @@ function processRequest(endpoint: ParsedEndpoint, req: Request): { responseStatu
   let responseStatus = endpoint.status;
   let responseBody = endpoint.body;
   
-  if (endpoint._dynamicMocks && isInterfaceDeclaration(endpoint._interfaceDeclaration)) {
-    responseBody = generateMockFromInterface(endpoint._interfaceDeclaration, true);
-    responseBody = evaluateDynamicMocks(responseBody);
+  const result = processDynamicMocks(endpoint, req);
+  if (result) {
+    responseBody = result;
   }
 
+  const guardResult = processGuard(endpoint, req);
+  if (guardResult) {
+    responseStatus = guardResult.status;
+    responseBody = guardResult.body;
+  }
+
+  responseBody = processInterpolation(responseBody, req);
+
+  return { responseStatus, responseBody };
+}
+
+function processDynamicMocks(endpoint: ParsedEndpoint, req: Request): unknown {
+  if (endpoint._dynamicMocks && isInterfaceDeclaration(endpoint._interfaceDeclaration)) {
+    const requestBody = isRecord(req.body) ? req.body : {};
+    const responseBody = generateMockFromInterface(endpoint._interfaceDeclaration, true, requestBody);
+    return evaluateDynamicMocks(responseBody, requestBody);
+  }
+  return undefined;
+}
+
+function processGuard(endpoint: ParsedEndpoint, req: Request): { status: number; body: unknown } | undefined {
   if (endpoint.guard) {
     const requestBody = isRecord(req.body) ? req.body : {};
     const guardResult = executeGuard(endpoint.guard, requestBody);
-    
-    responseStatus = guardResult.value.status;
-    responseBody = guardResult.value.body;
+    return { status: guardResult.value.status, body: guardResult.value.body ?? null };
   }
+  return undefined;
+}
 
+function processInterpolation(responseBody: unknown, req: Request): unknown {
   if (responseBody !== undefined && (typeof responseBody === "string" || typeof responseBody === "object")) {
-    responseBody = interpolateParams(
+    return interpolateParams(
       responseBody,
       req.params,
       isRecord(req.query) ? req.query : {},
       isRecord(req.body) ? req.body : {}
     );
   }
-
-  return { responseStatus, responseBody };
+  return responseBody;
 }
 
 function sendResponse(res: Response, status: number, body: unknown): void {

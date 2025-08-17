@@ -12,6 +12,7 @@ export interface TestServerOptions {
   port?: number;
   mockDir?: string;
   timeout?: number;
+  dynamicMocks?: boolean;
 }
 
 export interface ServerInstance {
@@ -30,6 +31,7 @@ export class TestServerManager {
     const port = options.port ?? getPortForTestFile();
     const mockDir = options.mockDir ?? this.createTempMockDir();
     const timeout = options.timeout ?? 10000;
+    const dynamicMocks = options.dynamicMocks ?? false;
 
     if (this.activeServers.has(port)) {
       const existingServer = this.activeServers.get(port)!;
@@ -42,7 +44,11 @@ export class TestServerManager {
 
     return new Promise((resolve, reject) => {
       const binPath = path.join(__dirname, '../../bin.js');
-      const serverProcess = spawn('node', [binPath, 'run', '-p', port.toString(), '-d', mockDir], {
+      const args = [binPath, 'run', '-p', port.toString(), '-d', mockDir];
+      if (dynamicMocks) {
+        args.push('--dynamic-mocks');
+      }
+      const serverProcess = spawn('node', args, {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, NODE_ENV: 'test' }
       });

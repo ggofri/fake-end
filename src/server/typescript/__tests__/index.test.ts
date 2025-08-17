@@ -61,7 +61,7 @@ describe('TypeScript Index Module', () => {
       expect(createTypeScriptProject.length).toBe(0);
       expect(extractDefaultInterface.length).toBe(1);
       expect(parseInterfaceWithCache.length).toBe(3);
-      expect(generateMockFromInterface.length).toBe(2);
+      expect(generateMockFromInterface.length).toBe(3);
       expect(isValidTypeScriptEndpoint.length).toBe(1);
       expect(extractEndpointInfoFromPath.length).toBe(2);
     });

@@ -1,5 +1,9 @@
-export function evaluateArrowFunction(expression: string): unknown {
+export function evaluateArrowFunction(expression: string, body?: unknown): unknown {
   try {
+    if (isBodyAwareFunction(expression)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      return eval(expression)(body);
+    }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return eval(expression)();
   } catch {
@@ -16,7 +20,11 @@ export function tryParseJson(value: string): { success: boolean; data?: unknown 
 }
 
 export function isArrowFunction(value: string): boolean {
-  return value.startsWith('() =>');
+  return value.startsWith('() =>') || value.startsWith('(body) =>');
+}
+
+export function isBodyAwareFunction(value: string): boolean {
+  return value.startsWith('(body) =>');
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -27,10 +35,14 @@ function isDynamicFunction(value: unknown): value is { _dynamicFunction: string 
   return isRecord(value) && '_dynamicFunction' in value && typeof value['_dynamicFunction'] === 'string';
 }
 
-export function evaluateDynamicMocks(data: unknown): unknown {
+export function evaluateDynamicMocks(data: unknown, body?: unknown): unknown {
   if (typeof data === 'object' && data !== null) {
     if (Array.isArray(data)) {
-      return data.map(evaluateDynamicMocks);
+      return data.map(item => evaluateDynamicMocks(item, body));
+    }
+    
+    if (isDynamicFunction(data)) {
+      return evaluateArrowFunction(data._dynamicFunction, body);
     }
     
     if (isRecord(data)) {
@@ -38,9 +50,9 @@ export function evaluateDynamicMocks(data: unknown): unknown {
       
       for (const [key, value] of Object.entries(data)) {
         if (isDynamicFunction(value)) {
-          result[key] = evaluateArrowFunction(value._dynamicFunction);
+          result[key] = evaluateArrowFunction(value._dynamicFunction, body);
         } else if (typeof value === 'object' && value !== null) {
-          result[key] = evaluateDynamicMocks(value);
+          result[key] = evaluateDynamicMocks(value, body);
         } else {
           result[key] = value;
         }

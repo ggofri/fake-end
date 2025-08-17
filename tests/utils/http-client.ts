@@ -91,7 +91,7 @@ export class HttpClient {
         stack: error instanceof Error ? error.stack : undefined
       });
       
-      throw new Error(`Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`Request failed: ${error instanceof Error ? error.message : error ?? 'Unknown error'}`);
     }
   }
 
