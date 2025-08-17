@@ -4,6 +4,9 @@ import { logRequest, logResponse } from '@/server/express/utils/logger';
 import { interpolateParams } from '@/server/express/utils/parameter-interpolator';
 import { executeGuard } from '@/server/express/utils/guard-executor';
 import { HTTP_STATUS } from '@/constants';
+import { evaluateDynamicMocks } from '@/server/typescript/utils/mock-value-evaluator';
+import { generateMockFromInterface } from '@/server/typescript/generators';
+import { InterfaceDeclaration } from 'ts-morph';
 
 function isValidLowercaseMethod(method: string): method is validLowercaseMethods {
   return ['get', 'post', 'put', 'delete', 'patch'].includes(method);
@@ -11,6 +14,10 @@ function isValidLowercaseMethod(method: string): method is validLowercaseMethods
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isInterfaceDeclaration(value: unknown): value is InterfaceDeclaration {
+  return value !== null && typeof value === 'object' && 'getName' in value;
 }
 
 export function registerEndpoints(app: Application, endpoints: ParsedEndpoint[]): void {
@@ -53,6 +60,11 @@ async function applyDelay(delayMs?: number): Promise<void> {
 function processRequest(endpoint: ParsedEndpoint, req: Request): { responseStatus: number; responseBody: unknown } {
   let responseStatus = endpoint.status;
   let responseBody = endpoint.body;
+  
+  if (endpoint._dynamicMocks && isInterfaceDeclaration(endpoint._interfaceDeclaration)) {
+    responseBody = generateMockFromInterface(endpoint._interfaceDeclaration, true);
+    responseBody = evaluateDynamicMocks(responseBody);
+  }
 
   if (endpoint.guard) {
     const requestBody = isRecord(req.body) ? req.body : {};

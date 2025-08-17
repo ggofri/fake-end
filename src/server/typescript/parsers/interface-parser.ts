@@ -34,10 +34,12 @@ export function extractDefaultInterface(sourceFile: SourceFile): InterfaceDeclar
   return null;
 }
 
-export function parseInterfaceWithCache(filePath: string, content: string): { interface: InterfaceDeclaration; project: Project } | null {
-  const cached = interfaceCache.get(filePath, content);
-  if (cached) {
-    return cached;
+export function parseInterfaceWithCache(filePath: string, content: string, noCache?: boolean): { interface: InterfaceDeclaration; project: Project } | null {
+  if (!noCache) {
+    const cached = interfaceCache.get(filePath, content);
+    if (cached) {
+      return cached;
+    }
   }
 
   const project = createTypeScriptProject();
@@ -46,7 +48,9 @@ export function parseInterfaceWithCache(filePath: string, content: string): { in
   
   if (interfaceDecl) {
     const result = { interface: interfaceDecl, project };
-    interfaceCache.set(filePath, content, interfaceDecl, project);
+    if (!noCache) {
+      interfaceCache.set(filePath, content, interfaceDecl, project);
+    }
     return result;
   }
   

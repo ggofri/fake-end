@@ -56,10 +56,14 @@ export interface MockEndpoint {
 export interface ParsedEndpoint extends MockEndpoint {
   filePath: string;
   fullPath: string;
+  _interfaceDeclaration?: unknown;
+  _dynamicMocks?: boolean;
 };
 
 export interface ServerOptions {
   port: number;
   mockDir: string;
   verbose?: boolean;
+  noCache?: boolean;
+  dynamicMocks?: boolean;
 };

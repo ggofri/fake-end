@@ -95,7 +95,7 @@ describe('CLI Run', () => {
 
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       await startServer(mockOptions);
-      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('mock_server');
+      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('mock_server', {});
       expect(consoleLogSpy).toHaveBeenCalledWith('GREEN: ✅ Loaded 3 mock endpoints');
 
       mockLoadMockEndpoints.mockResolvedValue([]);
@@ -195,7 +195,7 @@ describe('CLI Run', () => {
 
       await startServer(customOptions);
 
-      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('custom/dir');
+      expect(mockLoadMockEndpoints).toHaveBeenCalledWith('custom/dir', {});
       loggerFunctions.warn('Test warning');
       loggerFunctions.info('Test info');
       expect(consoleLogSpy).toHaveBeenCalledWith('YELLOW: Test warning');
