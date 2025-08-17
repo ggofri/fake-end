@@ -1,18 +1,21 @@
-import { MockGeneratorDependencies } from '@/cli/generate/types';
+import { MockGeneratorDependencies, GenerateOptions } from '@/cli/generate/types';
 import { ConsoleLogger } from './logger';
 import { MockEndpointFactory } from './endpoint-factory';
 import { FileOutputManager } from './file-output';
+import { TypeScriptFileManager } from './typescript-file-manager';
 import { CurlCommandProcessor, ExecutionDecisionMaker, ResponseGenerator } from '@/cli/generate/processors/';
 
 export class DependencyContainer {
-  static create(): MockGeneratorDependencies {
+  static create(options?: Pick<GenerateOptions, 'yaml'>): MockGeneratorDependencies {
+    const useYamlFormat = options?.yaml === true;
+    
     return {
       logger: new ConsoleLogger(),
       curlProcessor: new CurlCommandProcessor(),
       executionDecider: new ExecutionDecisionMaker(),
       responseGenerator: new ResponseGenerator(),
       endpointFactory: new MockEndpointFactory(),
-      fileManager: new FileOutputManager()
+      fileManager: useYamlFormat ? new FileOutputManager() : new TypeScriptFileManager(useYamlFormat)
     };
   }
 }
