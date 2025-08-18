@@ -8,6 +8,9 @@ import * as yaml from 'js-yaml';
 
 jest.mock('fs/promises');
 jest.mock('js-yaml');
+jest.mock('chalk', () => ({
+  blue: jest.fn((text: string) => `BLUE: ${text}`)
+}));
 
 const mockFs = fs as jest.Mocked<typeof fs>;
 const mockYaml = yaml as jest.Mocked<typeof yaml>;

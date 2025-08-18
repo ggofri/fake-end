@@ -3,6 +3,7 @@ import path from 'path';
 import { CurlInfo, MockEndpoint, FileManager } from '@/cli/generate/types';
 import { generateFilePath, writeYamlFile } from '@/cli/generate/utils/file-utils';
 import { generateTypeScriptInterface } from '@/cli/generate/utils/typescript-generator';
+import { isNil } from '@/utils';
 
 export class TypeScriptFileManager implements FileManager {
   constructor(private useYamlFormat: boolean = false) {}
@@ -39,9 +40,12 @@ export class TypeScriptFileManager implements FileManager {
   private generateTypeScriptFilePath(curlInfo: CurlInfo, outputDir: string): string {
     const { method, path: urlPath } = curlInfo;
     
-    let pathParts = urlPath.split('/').filter(Boolean);
-    
-    pathParts = pathParts.filter(part => !part.startsWith(':') && isNaN(Number(part)));
+    let pathParts: string[] = []
+    urlPath.split('/').forEach(part => {
+      if (isNil(part) || !part.trim()) return
+      if (isNaN(Number(part))) return pathParts.push(part)
+      return pathParts.push(':param')
+    });
     
     if (pathParts.length === 0) {
       pathParts = ['api'];

@@ -88,7 +88,7 @@ describe('CLI Generate TypeScript Functionality', () => {
       
       context = await createTestContext({ mockDir: testDir });
       
-      const response = await context.client.get('/api/users');
+      const response = await context.client.get('/api/users/123');
       
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();

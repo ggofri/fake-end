@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'js-yaml';
 import { CurlInfo, isArrayOfMockEndpoints, MockEndpoint } from '@/cli/generate/types';
+import chalk from 'chalk';
 
 export function generateFilePath(curlInfo: CurlInfo, outputDir: string): string {
   const { path: urlPath } = curlInfo;
@@ -61,7 +62,7 @@ export async function writeYamlFile(filePath: string, endpoints: MockEndpoint[])
       existingEndpoints = parsed;
     }
   } catch {
-    console.error('Error while writing YAML')
+    console.log(chalk.blue("YAML File doesn't exists, creating it"));
   }
   
   const mergedEndpoints = [...existingEndpoints];
