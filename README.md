@@ -1,9 +1,10 @@
 # Fake-End
 
-A modern TypeScript CLI tool for mocking backend APIs using YAML files. Perfect for frontend developers who need to simulate backend APIs during development.
+A modern TypeScript CLI tool for mocking backend APIs using YAML files. **Built with Bun by design** for TypeScript-native performance and seamless `.ts` file execution without compilation. Perfect for frontend developers who need to simulate backend APIs during development.
 
 ## Features
 
+- ⚡ **Bun-Native Performance**: Built with Bun for TypeScript-native execution without compilation
 - 🚀 **Fast Setup**: Get a mock API server running in seconds
 - 📝 **YAML Configuration**: Define your mock endpoints in simple YAML files
 - 🔄 **Path Parameters**: Support for dynamic route parameters (e.g., `/users/:id`)
@@ -16,6 +17,12 @@ A modern TypeScript CLI tool for mocking backend APIs using YAML files. Perfect 
 - 📘 **TypeScript Integration**: Generate mocks from TypeScript interface definitions
 - ⚡ **Hot Reload**: Automatic reload when YAML files change
 - 🔧 **Advanced CLI Options**: Verbose logging, caching control, and dynamic mocks
+- 🎨 **Custom Mock Values**: Static and dynamic mock values with `@mock` directives
+- 🏗️ **Strict Type Generation**: Generate accurate TypeScript interfaces from API responses
+- 🛡️ **Guard Functions**: Conditional logic with Either pattern for request validation
+- 🔀 **Either Pattern**: Left/Right pattern support for error handling
+- 🎲 **Dynamic Functions**: Execute custom JavaScript functions for each request
+- 📊 **Contract Generation**: Use generated interfaces as API contracts
 
 ## Installation
 
@@ -28,6 +35,8 @@ Or use it directly with npx:
 ```bash
 npx fake-end run
 ```
+
+> **Note**: While distributed via npm for compatibility, Fake-End is built with Bun and leverages its TypeScript-native capabilities for optimal performance. The tool can execute `.ts` files directly without compilation, making it perfect for TypeScript-first development workflows.
 
 ## Quick Start
 
@@ -123,7 +132,7 @@ Options:
 
 ### Generate Mocks
 
-Generate YAML mock files from cURL commands:
+Generate TypeScript interface or YAML mock files from cURL commands:
 
 ```bash
 fake-end generate [options]
@@ -131,7 +140,8 @@ fake-end generate [options]
 Options:
   -c, --curl <curl>           cURL command to analyze and mock
   -f, --file <file>           File containing cURL command
-  -o, --output <output>       Output directory for generated YAML files (default: mock_server)
+  -o, --output <output>       Output directory for generated files (default: mock_server)
+  --yaml                      Generate YAML files instead of TypeScript interfaces
   --execute                   Force execution of the cURL command to capture actual response
   --no-execute               Skip execution and infer response structure instead
   --ollama                    Use Ollama for AI-powered response generation
@@ -233,23 +243,48 @@ This creates endpoints at:
 
 ## Advanced Features
 
-### Mock Generation from cURL Commands
+### Strict TypeScript Interface Generation
 
-Generate YAML mock files directly from cURL commands:
+Generate accurate TypeScript interfaces with strict typing from cURL commands:
 
 ```bash
-# Generate from a cURL command directly
+# Generate TypeScript interface with strict typing (default)
+fake-end generate --curl "https://pokeapi.co/api/v2/pokemon/ditto"
+
+# Generate YAML files instead
+fake-end generate --curl "https://api.example.com/users/123" --yaml
+
+# Force execution to capture real response structure
+fake-end generate --curl "https://api.example.com/users" --execute
+
+# Generate from cURL command with headers and data
 fake-end generate --curl "curl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{\"name\":\"John\",\"email\":\"john@example.com\"}'"
-
-# Generate from a file containing cURL command
-echo "curl -X GET https://api.example.com/users/123" > curl-command.txt
-fake-end generate --file curl-command.txt
-
-# Force execution to capture real response
-fake-end generate --curl "curl -X GET https://api.example.com/users" --execute
 
 # Use AI to generate realistic responses (requires Ollama)
 fake-end generate --curl "curl -X GET https://api.example.com/products" --ollama
+```
+
+**Generated TypeScript Interface Example:**
+```typescript
+// Generated from Pokemon API
+interface ApiV2PokemonDittoResponse {
+  abilities: { ability: { name: string; url: string }; is_hidden: boolean; slot: number }[];
+  base_experience: number;
+  sprites: { 
+    front_default: string; 
+    back_default: string;
+    other: { 
+      "dream_world": { front_default: string };
+      "official-artwork": { front_default: string }
+    };
+    versions: {
+      "generation-i": {
+        "red-blue": { front_default: string; back_default: string }
+      }
+    }
+  };
+  // ... all properties with accurate, nested typing
+}
 ```
 
 ### TypeScript Interface Integration
@@ -289,10 +324,89 @@ The server will automatically generate realistic data matching your TypeScript i
 }
 ```
 
-### Realistic Mock Data with Faker.js
+### Custom Mock Values with @mock Directives
 
-Fake-End includes Faker.js integration for generating realistic mock data:
+Use `@mock` directives in TypeScript interfaces for custom static and dynamic values:
 
+#### Static Mock Values
+```typescript
+interface Product {
+  /** @mock 12345 */
+  id: number;
+  
+  /** @mock "Custom Product Name" */
+  name: string;
+  
+  /** @mock true */
+  inStock: boolean;
+  
+  /** @mock {"nested": "object", "value": 42} */
+  metadata: object;
+}
+```
+
+#### Dynamic Mock Functions
+```typescript
+interface DynamicProduct {
+  /** @mock () => Date.now() */
+  timestamp: number;
+  
+  /** @mock () => `user_${crypto.randomUUID()}` */
+  userId: string;
+  
+  /** @mock () => Math.random() > 0.5 */
+  isOnSale: boolean;
+  
+  /** @mock () => ['red', 'blue', 'green'][Math.floor(Math.random() * 3)] */
+  color: string;
+  
+  /** @mock () => ({ lat: Math.random() * 180 - 90, lng: Math.random() * 360 - 180 }) */
+  coordinates: { lat: number; lng: number };
+}
+```
+
+### Faker.js Integration
+
+#### Automatic Faker.js for Common Properties
+Fake-End automatically detects common property names and uses appropriate Faker.js functions:
+
+```typescript
+interface User {
+  id: number;        // Auto-generates: faker.number.int()
+  email: string;     // Auto-generates: faker.internet.email()
+  firstName: string; // Auto-generates: faker.person.firstName()
+  lastName: string;  // Auto-generates: faker.person.lastName()
+  phone: string;     // Auto-generates: faker.phone.number()
+  website: string;   // Auto-generates: faker.internet.url()
+  avatar: string;    // Auto-generates: faker.image.avatar()
+  // ... and many more
+}
+```
+
+#### Custom Faker.js with @mock Directives
+```typescript
+interface ProductWithFaker {
+  /** @mock faker.number.int({ min: 1000, max: 9999 }) */
+  id: number;
+  
+  /** @mock faker.commerce.productName() */
+  name: string;
+  
+  /** @mock faker.number.float({ min: 10, max: 500, fractionDigits: 2 }) */
+  price: number;
+  
+  /** @mock faker.helpers.arrayElement(["electronics", "clothing", "books"]) */
+  category: string;
+  
+  /** @mock faker.lorem.paragraph() */
+  description: string;
+  
+  /** @mock faker.date.past().toISOString() */
+  createdAt: string;
+}
+```
+
+#### Faker.js in YAML Templates
 ```yaml
 - method: GET
   path: /users
@@ -320,24 +434,173 @@ fake-end generate --curl "curl -X GET https://api.example.com/analytics/dashboar
 
 The AI will analyze the endpoint and generate contextually appropriate mock responses.
 
+### Guard Functions with Either Pattern
+
+Use guard functions to add conditional logic and validation to your endpoints:
+
+#### YAML Guard Configuration
+```yaml
+- method: POST
+  path: /products
+  status: 200
+  guard:
+    condition:
+      field: "price"
+      operator: "greater_than"
+      value: 0
+    left:  # When condition fails
+      status: 400
+      body:
+        error: "Price must be greater than 0"
+        code: "INVALID_PRICE"
+    right: # When condition passes
+      status: 201
+      body:
+        message: "Product created successfully"
+        id: "{{body.id}}"
+        name: "{{body.name}}"
+        price: "{{body.price}}"
+```
+
+#### TypeScript Guard with @guard Directive
+```typescript
+/**
+ * @guard {
+ *   "condition": { "field": "email", "operator": "contains", "value": "@" },
+ *   "left": { "status": 400, "body": { "error": "Invalid email format" } },
+ *   "right": { "status": 201, "body": { "message": "User created", "id": "new-user-123" } }
+ * }
+ */
+interface CreateUserResponse {
+  message: string;
+  id: string;
+  email?: string;
+}
+```
+
+#### Supported Guard Operators
+- `equals` / `not_equals`
+- `greater_than` / `less_than`
+- `greater_than_or_equal` / `less_than_or_equal`
+- `contains` / `not_contains`
+- `starts_with` / `ends_with`
+- `matches_regex`
+- `is_null` / `is_not_null`
+- `is_empty` / `is_not_empty`
+
+#### Either Pattern in TypeScript
+The Either pattern is built into the type system for error handling:
+
+```typescript
+import { Either, left, right, isLeft, isRight } from 'fake-end';
+
+// Type-safe error handling
+type APIResult<T> = Either<{ error: string }, T>;
+
+interface UserResponse {
+  result: APIResult<{ id: string; name: string }>;
+}
+
+// Usage example
+const handleResponse = (response: APIResult<User>) => {
+  if (isLeft(response)) {
+    console.log('Error:', response.value.error);
+  } else {
+    console.log('Success:', response.value.name);
+  }
+};
+```
+
+### Contract Generation and API Design
+
+Use generated TypeScript interfaces as API contracts for frontend/backend alignment:
+
+#### 1. Generate Contracts from Existing APIs
+```bash
+# Generate TypeScript contracts from production API
+fake-end generate --curl "https://api.production.com/users/123" --execute
+fake-end generate --curl "https://api.production.com/products" --execute
+
+# This creates strict TypeScript interfaces that match your actual API
+```
+
+#### 2. Share Contracts Between Teams
+```typescript
+// Generated interface can be shared between frontend and backend teams
+export interface ApiV1UsersResponse {
+  id: string;
+  email: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    avatar: string;
+  };
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Frontend can import and use these types
+import { ApiV1UsersResponse } from './contracts/users';
+```
+
+#### 3. Mock Development with Real Contracts
+```bash
+# Start mock server with contract-based interfaces
+fake-end run --dir ./contracts
+
+# Frontend developers get realistic mock data that matches production
+```
+
+### Dynamic Mock Functions vs Static Values
+
+Control when mock functions execute using the `--dynamic-mocks` flag:
+
+```bash
+# Static execution (default) - functions run once at startup
+fake-end run
+
+# Dynamic execution - functions run on each request
+fake-end run --dynamic-mocks
+```
+
+**Static Mode** (default):
+- Mock functions execute once when server starts
+- Same values returned for all requests
+- Better performance, predictable responses
+
+**Dynamic Mode**:
+- Mock functions execute on every request
+- Different values for each request
+- Realistic behavior for testing dynamic data
+
 ## Development
 
-This project uses Bun as the runtime and package manager:
+**Fake-End is built with Bun by design** to leverage TypeScript-native performance and seamless `.ts` file execution. This architectural choice enables the tool to run TypeScript interfaces and mock functions directly without compilation overhead.
+
+### Why Bun?
+
+- **TypeScript-Native**: Execute `.ts` files directly without build steps
+- **Performance**: Faster startup and execution compared to Node.js + transpilation
+- **Modern Runtime**: Built-in support for modern JavaScript/TypeScript features
+- **Simplified Workflow**: No need for complex build pipelines for TypeScript code
+
+### Development Commands
 
 ```bash
 # Install dependencies
 bun install
 
-# Development mode
+# Development mode (runs TypeScript directly)
 bun run dev
 
 # Start development server
 bun run dev run
 
-# Build the project
+# Build the project for distribution
 bun run build
 
-# Run tests
+# Run tests (executes .ts test files natively)
 bun test
 bun test:unit        # Unit tests only
 bun test:e2e         # End-to-end tests only
@@ -345,12 +608,20 @@ bun test:e2e         # End-to-end tests only
 # Code quality
 bun run lint         # Run ESLint
 bun run lint:fix     # Auto-fix linting issues
-bun run tsc          # TypeScript compilation
+bun run tsc          # TypeScript compilation check
 bun run verify       # Full verification pipeline
 
 # Run the built version
 bun start
 ```
+
+### TypeScript-First Architecture
+
+The choice of Bun enables Fake-End to provide a TypeScript-first experience where:
+- Mock interfaces are executed as TypeScript without compilation
+- Dynamic functions in `@mock` directives run natively
+- Hot reload works seamlessly with `.ts` files
+- Development and production environments are identical
 
 ## Contributing
 

@@ -125,7 +125,7 @@ describe('field-generator', () => {
       expect(result).toHaveLength(2);
       
       const userField = result.find(f => f.name === 'user');
-      expect(userField?.type).toBe('Record<string, unknown>');
+      expect(userField?.type).toBe('{ id: number; profile: { name: string } }');
       
       const tagsField = result.find(f => f.name === 'tags');
       expect(tagsField?.type).toBe('string[]');

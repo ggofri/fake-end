@@ -11,10 +11,14 @@ export async function executeCurlCommand(curlCommand: string): Promise<string | 
       .replace(/\\\s*\n\s*/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-
-    console.log(chalk.gray(`   Running: ${cleanedCommand.substring(0, COMMAND_PREVIEW_LENGTH)}${cleanedCommand.length > COMMAND_PREVIEW_LENGTH ? '...' : ''}`));
     
-    const { stdout, stderr } = await execAsync(cleanedCommand, {
+    const executableCommand = cleanedCommand.startsWith('http') 
+      ? `curl -s "${cleanedCommand}"` 
+      : cleanedCommand;
+
+    console.log(chalk.gray(`   Running: ${executableCommand.substring(0, COMMAND_PREVIEW_LENGTH)}${executableCommand.length > COMMAND_PREVIEW_LENGTH ? '...' : ''}`));
+    
+    const { stdout, stderr } = await execAsync(executableCommand, {
       timeout: 30000,
       maxBuffer: BUFFER_SIZE_MB * BUFFER_SIZE_MB,
     });

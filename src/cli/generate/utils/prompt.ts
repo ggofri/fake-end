@@ -15,16 +15,16 @@ export async function promptUserForExecution(): Promise<boolean> {
     rl.question(chalk.yellow('\nChoose an option (1/2) [default: 1]: '), (answer) => {
       rl.close();
       
-      const choice = answer.trim() ?? '1';
-      const shouldExecute = choice === '1' || choice.toLowerCase() === 'execute' || choice.toLowerCase() === 'e';
+      const choice = answer.trim();
+      const shouldNotExecute = choice === '2' || choice.toLowerCase().includes('no')
       
-      if (shouldExecute) {
+      if (!shouldNotExecute) {
         console.log(chalk.green('✓ Will execute cURL command to capture actual response'));
       } else {
         console.log(chalk.blue('✓ Will infer response structure'));
       }
       
-      resolve(shouldExecute);
+      resolve(!shouldNotExecute);
     });
   });
 }

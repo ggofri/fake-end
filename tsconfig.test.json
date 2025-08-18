@@ -1,6 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/types": ["src/types/index"],
+      "@/server/*": ["src/server/*"],
+      "@/constants": ["src/constants/index"],
+      "@/cli/*": ["src/cli/*"],
+      "@/utils": ["src/utils/index"]
+    },
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,

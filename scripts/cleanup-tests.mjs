@@ -43,7 +43,7 @@ async function cleanup() {
 
   console.log('\n🔪 Killing any running fake-end processes...');
   try {
-    execSync('pkill -f "fake-end" 2>/dev/null || pkill -f "bin.cjs" 2>/dev/null || true', { stdio: 'pipe' });
+    execSync('pkill -f "fake-end" 2>/dev/null || pkill -f "bin.js" 2>/dev/null || true', { stdio: 'pipe' });
     console.log('   ✅ Process cleanup completed');
   } catch (error) {
     console.log('   ✅ No running processes found');

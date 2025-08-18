@@ -24,8 +24,8 @@ describe('type-inference', () => {
       expect(inferTypeScriptType(undefined)).toBe('string | null');
     });
 
-    it('should infer object as Record<string, unknown>', () => {
-      expect(inferTypeScriptType({ key: 'value' })).toBe('Record<string, unknown>');
+    it('should infer object with specific interface structure', () => {
+      expect(inferTypeScriptType({ key: 'value' })).toBe('{ key: string }');
     });
 
     it('should infer empty array as unknown[]', () => {
@@ -40,8 +40,8 @@ describe('type-inference', () => {
       expect(inferTypeScriptType([1, 2, 3])).toBe('number[]');
     });
 
-    it('should infer array of objects', () => {
-      expect(inferTypeScriptType([{ id: 1 }, { id: 2 }])).toBe('Record<string, unknown>[]');
+    it('should infer array of objects with specific structure', () => {
+      expect(inferTypeScriptType([{ id: 1 }, { id: 2 }])).toBe('{ id: number }[]');
     });
 
     it('should infer nested arrays', () => {

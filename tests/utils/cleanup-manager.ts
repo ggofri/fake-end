@@ -123,7 +123,7 @@ export class CleanupManager {
 
   async cleanupRunningServers(): Promise<void> {
     try {
-      execSync('pkill -f "fake-end" || pkill -f "bin.cjs" || true', { stdio: 'pipe' });
+      execSync('pkill -f "fake-end" || pkill -f "src/cli/index.ts" || true', { stdio: 'pipe' });
     } catch (error) {
       console.error("Error when cleaning running servers: ", error.message ?? error)
     }
@@ -131,7 +131,7 @@ export class CleanupManager {
 
   cleanupRunningServersSync(): void {
     try {
-      execSync('pkill -f "fake-end" || pkill -f "bin.cjs" || true', { stdio: 'pipe' });
+      execSync('pkill -f "fake-end" || pkill -f "src/cli/index.ts" || true', { stdio: 'pipe' });
     } catch (error) {
       console.error("Error when cleaning running servers sync: ", error.message ?? error)
     }
