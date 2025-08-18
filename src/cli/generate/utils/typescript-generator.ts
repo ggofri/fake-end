@@ -4,6 +4,7 @@ import {
   generateFieldsFromResponse,
   generateFieldDeclaration
 } from './typescript';
+import { MockStrategy } from './typescript/mock-value-generator';
 
 export interface TypeScriptField {
   name: string;
@@ -15,10 +16,11 @@ export interface TypeScriptField {
 export function generateTypeScriptInterface(
   curlInfo: CurlInfo, 
   responseData: unknown,
-  interfaceName?: string
+  interfaceName?: string,
+  mockStrategy: MockStrategy = 'sanitize'
 ): string {
   const name = interfaceName ?? generateInterfaceName(curlInfo);
-  const fields = generateFieldsFromResponse(responseData);
+  const fields = generateFieldsFromResponse(responseData, mockStrategy);
   
   const interfaceContent = `interface ${name} {
 ${fields.map(field => generateFieldDeclaration(field)).join('\n')}

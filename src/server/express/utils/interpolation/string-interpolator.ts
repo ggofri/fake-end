@@ -23,7 +23,8 @@ function interpolateStringContent(
       const value = getNestedValue(body, path);
       if (value === undefined) return match;
       return safeStringify(value);
-    });
+    })
+;
 }
 
 export function interpolateString(

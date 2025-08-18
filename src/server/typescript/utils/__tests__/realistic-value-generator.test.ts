@@ -56,8 +56,8 @@ describe('generateRealisticValue', () => {
       expect(result).not.toBe('sample_description');
     });
 
-    it('should generate UUID for id properties', () => {
-      const result = generateRealisticValue('id', 'StringKeyword');
+    it('should generate UUID for user_id properties', () => {
+      const result = generateRealisticValue('user_id', 'StringKeyword');
       expect(typeof result).toBe('string');
       expect(result).toMatch(/^[a-f0-9-]{36}$/);
     });

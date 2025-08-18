@@ -1,48 +1,48 @@
 import { TypeScriptField } from '@/cli/generate/utils/typescript-generator';
 import { inferTypeScriptType } from './type-inference';
-import { generateMockValueForType } from './mock-value-generator';
+import { generateMockValueForType, MockStrategy } from './mock-value-generator';
 
-export function generateFieldsFromResponse(data: unknown): TypeScriptField[] {
+export function generateFieldsFromResponse(data: unknown, strategy: MockStrategy = 'sanitize'): TypeScriptField[] {
   if (!data || typeof data !== 'object') {
-    return generatePrimitiveField(data);
+    return generatePrimitiveField(data, strategy);
   }
 
   if (Array.isArray(data)) {
-    return generateArrayField(data);
+    return generateArrayField(data, strategy);
   }
 
-  return generateObjectFields(data);
+  return generateObjectFields(data, strategy);
 }
 
-function generatePrimitiveField(data: unknown): TypeScriptField[] {
+function generatePrimitiveField(data: unknown, strategy: MockStrategy): TypeScriptField[] {
   return [{
     name: 'data',
     type: typeof data === 'string' ? 'string' : 
           typeof data === 'number' ? 'number' :
           typeof data === 'boolean' ? 'boolean' : 'unknown',
-    mockValue: JSON.stringify(data)
+    mockValue: generateMockValueForType('data', data, strategy)
   }];
 }
 
-function generateArrayField(data: unknown[]): TypeScriptField[] {
+function generateArrayField(data: unknown[], strategy: MockStrategy): TypeScriptField[] {
   if (data.length === 0) {
     return [{
       name: 'data',
       type: 'unknown[]',
-      mockValue: '[]'
+      mockValue: generateMockValueForType('data', [], strategy)
     }];
   }
   
   const [firstItem] = data;
-  const itemFields = generateFieldsFromResponse(firstItem);
+  const itemFields = generateFieldsFromResponse(firstItem, strategy);
   return [{
     name: 'data',
     type: `Array<{${itemFields.map(f => `${f.name}: ${f.type}`).join('; ')}}>`,
-    mockValue: `[${generateMockObject(itemFields)}]`
+    mockValue: generateMockValueForType('data', data, strategy)
   }];
 }
 
-function generateObjectFields(data: object): TypeScriptField[] {
+function generateObjectFields(data: object, strategy: MockStrategy): TypeScriptField[] {
   const fields: TypeScriptField[] = [];
   const entries = Object.entries(data);
   
@@ -50,14 +50,9 @@ function generateObjectFields(data: object): TypeScriptField[] {
     fields.push({
       name: key,
       type: inferTypeScriptType(value),
-      mockValue: generateMockValueForType(key, value)
+      mockValue: generateMockValueForType(key, value, strategy)
     });
   }
   
   return fields;
-}
-
-function generateMockObject(fields: TypeScriptField[]): string {
-  const props = fields.map(f => `${f.name}: ${f.mockValue ?? 'null'}`);
-  return `{${props.join(', ')}}`;
 }

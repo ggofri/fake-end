@@ -3,10 +3,14 @@ import path from 'path';
 import { CurlInfo, MockEndpoint, FileManager } from '@/cli/generate/types';
 import { generateFilePath, writeYamlFile } from '@/cli/generate/utils/file-utils';
 import { generateTypeScriptInterface } from '@/cli/generate/utils/typescript-generator';
+import { MockStrategy } from '@/cli/generate/utils/typescript/mock-value-generator';
 import { isNil } from '@/utils';
 
 export class TypeScriptFileManager implements FileManager {
-  constructor(private useYamlFormat: boolean = false) {}
+  constructor(
+    private useYamlFormat: boolean = false, 
+    private mockStrategy: MockStrategy = 'sanitize'
+  ) {}
 
   async ensureOutputDirectory(outputPath: string): Promise<void> {
     await fs.mkdir(outputPath, { recursive: true });
@@ -32,7 +36,7 @@ export class TypeScriptFileManager implements FileManager {
     
     await fs.mkdir(dirPath, { recursive: true });
     
-    const interfaceContent = generateTypeScriptInterface(curlInfo, endpoint.body);
+    const interfaceContent = generateTypeScriptInterface(curlInfo, endpoint.body, undefined, this.mockStrategy);
     await fs.writeFile(filePath, interfaceContent, 'utf8');
     return filePath;
   }
@@ -41,10 +45,12 @@ export class TypeScriptFileManager implements FileManager {
     const { method, path: urlPath } = curlInfo;
     
     let pathParts: string[] = []
+    let paramCount = 1
     urlPath.split('/').forEach(part => {
       if (isNil(part) || !part.trim()) return
       if (isNaN(Number(part))) return pathParts.push(part)
-      return pathParts.push(':param')
+      pathParts.push(`:param${paramCount}`)
+      return paramCount++
     });
     
     if (pathParts.length === 0) {

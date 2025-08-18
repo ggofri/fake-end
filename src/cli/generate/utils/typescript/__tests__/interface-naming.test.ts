@@ -114,5 +114,33 @@ describe('interface-naming', () => {
 
       expect(result).toBe('UsersResponse');
     });
+
+    it('should handle hyphenated path segments', () => {
+      const curlInfo: CurlInfo = {
+        method: 'GET',
+        path: '/api/v2/egg-group',
+        url: 'https://pokeapi.co/api/v2/egg-group/1',
+        headers: {},
+        queryParams: {}
+      };
+
+      const result = generateInterfaceName(curlInfo);
+
+      expect(result).toBe('ApiV2EggGroupResponse');
+    });
+
+    it('should handle multiple hyphenated segments', () => {
+      const curlInfo: CurlInfo = {
+        method: 'GET',
+        path: '/api/user-profile/contact-info',
+        url: 'https://api.example.com/api/user-profile/contact-info',
+        headers: {},
+        queryParams: {}
+      };
+
+      const result = generateInterfaceName(curlInfo);
+
+      expect(result).toBe('ApiUserProfileContactInfoResponse');
+    });
   });
 });

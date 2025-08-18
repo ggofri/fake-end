@@ -139,10 +139,10 @@ describe('CLI Index', () => {
       mockGenerateMockFromCurl.mockResolvedValue();
 
       await generateActionCallback({ curl: 'curl -X GET http://example.com', output: 'test_output' });
-      expect(mockGenerateMockFromCurl).toHaveBeenCalledWith({ curl: 'curl -X GET http://example.com', output: 'test_output' });
+      expect(mockGenerateMockFromCurl).toHaveBeenCalledWith({ curl: 'curl -X GET http://example.com', mockStrategy: "sanitize", output: 'test_output' });
 
       await generateActionCallback({ file: 'curl-commands.txt', ollama: true });
-      expect(mockGenerateMockFromCurl).toHaveBeenCalledWith({ file: 'curl-commands.txt', ollama: true });
+      expect(mockGenerateMockFromCurl).toHaveBeenCalledWith({ file: 'curl-commands.txt', mockStrategy: "sanitize", ollama: true });
     });
 
     it('should handle generateMockFromCurl errors', async () => {

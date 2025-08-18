@@ -39,7 +39,7 @@ function generateNameStringValue(lowerName: string): string | null {
 
 function generateCredentialStringValue(lowerName: string): string | null {
   if (lowerName.includes('username')) {
-    return faker.internet.userName();
+    return faker.internet.username();
   }
   if (lowerName.includes('password')) {
     return faker.internet.password();

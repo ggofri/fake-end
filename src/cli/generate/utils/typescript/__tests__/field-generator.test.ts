@@ -64,48 +64,37 @@ describe('field-generator', () => {
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('data');
       expect(result[0].type).toBe('Array<{id: number; name: string}>');
-      expect(result[0].mockValue).toContain('id: "mock-id-123"');
-      expect(result[0].mockValue).toContain('name: "Sample Name"');
+      expect(JSON.parse(result[0].mockValue)[0].id).toBe(1);
+      expect(JSON.parse(result[0].mockValue)[0].name).toBe('Test');
     });
 
     it('should generate fields from simple object', () => {
+      const actualUUID = crypto.randomUUID()
       const data = {
-        id: 1,
+        id: actualUUID,
         name: 'Test User',
         email: 'test@example.com',
         active: true
       };
       
       const result = generateFieldsFromResponse(data);
-      
       expect(result).toHaveLength(4);
       
       const idField = result.find(f => f.name === 'id');
-      expect(idField).toEqual({
-        name: 'id',
-        type: 'number',
-        mockValue: '"mock-id-123"'
-      });
+      expect(JSON.parse(idField.mockValue)).not.toEqual(actualUUID)
+      expect(JSON.parse(idField.mockValue)).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
       
       const nameField = result.find(f => f.name === 'name');
-      expect(nameField).toEqual({
-        name: 'name',
-        type: 'string',
-        mockValue: '"Sample Name"'
-      });
+      expect(nameField.mockValue).toMatch(/[A-Z][a-z]*\s[A-Z][a-z]*.*/)
       
       const emailField = result.find(f => f.name === 'email');
-      expect(emailField).toEqual({
-        name: 'email',
-        type: 'string',
-        mockValue: '"user@example.com"'
-      });
+      expect(emailField.mockValue).toMatch(/^"[^@]+@[^.]+\.[^"]+"/);
       
       const activeField = result.find(f => f.name === 'active');
       expect(activeField).toEqual({
         name: 'active',
         type: 'boolean',
-        mockValue: '"true"'
+        mockValue: 'true'
       });
     });
 

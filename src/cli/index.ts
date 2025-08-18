@@ -22,6 +22,7 @@ interface GenerateOptions {
   ollamaModel: string;
   ollamaHost: string;
   yaml?: boolean;
+  mockStrategy?: 'sanitize' | 'real' | 'faker';
 }
 
 const program = new Command();
@@ -66,9 +67,23 @@ program
   .option('--ollama-model <model>', 'Ollama model to use', 'qwen2.5-coder:0.5b')
   .option('--ollama-host <host>', 'Ollama host URL', 'http://localhost:11434')
   .option('--yaml', 'Generate YAML files instead of TypeScript interfaces (default: TypeScript)')
-  .action(async (options: GenerateOptions) => {
+  .option('--use-real-values', 'Use actual API response values for all fields')
+  .option('--use-faker', 'Use faker.js generated values for all fields')
+  .option('--sanitize', 'Use real values but replace sensitive fields with faker.js values (default)')
+  .action(async (options: GenerateOptions & { useRealValues?: boolean; useFaker?: boolean; sanitize?: boolean }) => {
     try {
-      await generateMockFromCurl(options);
+      
+      let mockStrategy: 'sanitize' | 'real' | 'faker' = 'sanitize';
+      if (options.useRealValues) mockStrategy = 'real';
+      else if (options.useFaker) mockStrategy = 'faker';
+      else if (options.sanitize === false) mockStrategy = 'real'; 
+      
+      const generateOptions: GenerateOptions = {
+        ...options,
+        mockStrategy
+      };
+      
+      await generateMockFromCurl(generateOptions);
     } catch (error) {
       console.error(chalk.red('Error generating mock:'), error);
       process.exit(1);

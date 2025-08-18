@@ -23,7 +23,11 @@ export interface OutputFormatConfig {
   yaml?: boolean;
 }
 
-export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig, OutputFormatConfig {}
+export interface MockStrategyConfig {
+  mockStrategy?: 'sanitize' | 'real' | 'faker';
+}
+
+export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig, OutputFormatConfig, MockStrategyConfig {}
 
 export interface CurlInfo {
   method: string;

@@ -1,5 +1,4 @@
 /**
- * Response interface for creating a new product
  * @guard {
  *  "condition": {
  *    "field": "price",

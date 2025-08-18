@@ -27,7 +27,7 @@
     "test:e2e:run": "./tests/run-e2e.sh",
     "test:cleanup": "bun scripts/cleanup-tests.mjs",
     "prepublishOnly": "bun run verify",
-    "verify": "bun run pack && bun run tsc:no-emit && bun run lint && bun test:unit:coverage && bun test:e2e",
+    "verify": "bun run tsc:no-emit && bun run lint && bun test:unit:coverage && bun test:e2e",
     "publish": "bun run prepublishOnly && bun publish --access public",
     "pack": "bun pm pack"
   },
