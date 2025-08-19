@@ -8,14 +8,14 @@
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
-    "fake-end": "./bin.cjs"
+    "fake-end": "src/cli-commands/handlers/index.ts"
   },
   "scripts": {
-    "dev": "tsx src/cli/index.ts",
-    "start": "bun bin.cjs",
+    "dev": "bun src/cli-commands/handlers/index.ts",
+    "start": "bun src/cli-commands/handlers/index.ts",
     "build": "rm -rf dist && bun run tsc",
     "tsc": "tsc && tsc --project tsconfig.test.json && tsc-alias --resolve-full-paths",
-    "tsc:no-emit": "tsc --no-emit && tsc --project tsconfig.test.json --no-emit",
+    "tsc:no-emit": "tsc --noEmit && tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --ext .ts",
     "lint:fix": "eslint --ext .ts --fix",
     "test": "bun test:unit && bun test:e2e",
@@ -26,10 +26,10 @@
     "test:e2e:verbose": "jest tests/e2e/ --verbose",
     "test:e2e:run": "./tests/run-e2e.sh",
     "test:cleanup": "bun scripts/cleanup-tests.mjs",
-    "prepare": "husky",
-    "prepublishOnly": "bun run build",
-    "verify": "bun run build && bun run lint && bun test:unit:coverage && bun test:e2e",
-    "publish": "bun run prepublishOnly && bun publish --access public"
+    "prepublishOnly": "bun run verify",
+    "verify": "bun run tsc:no-emit && bun run lint && bun test:unit:coverage && bun test:e2e",
+    "publish": "bun run prepublishOnly && bun publish --access public",
+    "pack": "bun pm pack"
   },
   "keywords": [
     "cli",
@@ -61,7 +61,7 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "eslint": "^9.30.0",
-    "eslint-plugin-ban-comments": "^1.0.1",
+    "eslint-plugin-ban-comments": "^1.0.3",
     "eslint-plugin-unused-imports": "^4.0.0",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
@@ -70,7 +70,6 @@
     "jiti": "^2.5.1",
     "ts-jest": "^29.4.1",
     "tsc-alias": "^1.8.16",
-    "tsx": "^4.6.2",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.35.0"
   }

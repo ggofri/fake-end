@@ -41,10 +41,10 @@ describe('CLI Core Functionality', () => {
       
       writeFileSync(join(testDir, 'health.yaml'), yamlContent);
       
-      const binPath = join(process.cwd(), 'bin.cjs');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       const testPort = 5001 + Math.floor(Math.random() * 1000); 
       const promise = new Promise<void>((resolve, reject) => {
-        serverProcess = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
+        serverProcess = spawn('bun', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 
@@ -88,10 +88,10 @@ describe('CLI Core Functionality', () => {
     it('should fail gracefully when mock directory does not exist', async () => {
       const nonExistentDir = join(testDir, 'does-not-exist');
       
-      const binPath = join(process.cwd(), 'bin.cjs');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       const testPort = 5001 + Math.floor(Math.random() * 1000); 
       const promise = new Promise<string>((resolve, reject) => {
-        serverProcess = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', nonExistentDir], {
+        serverProcess = spawn('bun', [binPath, 'run', '-p', testPort.toString(), '-d', nonExistentDir], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 
@@ -131,9 +131,9 @@ describe('CLI Core Functionality', () => {
       
       writeFileSync(join(testDir, 'test.yaml'), yamlContent);
       
-      const binPath = join(process.cwd(), 'bin.cjs');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       const testPort = 5001 + Math.floor(Math.random() * 1000); 
-      const firstServer = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
+      const firstServer = spawn('bun', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
         stdio: ['pipe', 'pipe', 'pipe']
       });
       
@@ -153,7 +153,7 @@ describe('CLI Core Functionality', () => {
       });
       
       const secondServerPromise = new Promise<string>((resolve, reject) => {
-        const secondServer = spawn('node', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
+        const secondServer = spawn('bun', [binPath, 'run', '-p', testPort.toString(), '-d', testDir], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 
@@ -188,9 +188,9 @@ describe('CLI Core Functionality', () => {
 
   describe('Basic CLI Commands', () => {
     it('should display version information', async () => {
-      const binPath = join(process.cwd(), 'bin.cjs');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       const promise = new Promise<string>((resolve, reject) => {
-        const process = spawn('node', [binPath, '--version'], {
+        const process = spawn('bun', [binPath, '--version'], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 
@@ -219,9 +219,9 @@ describe('CLI Core Functionality', () => {
     });
 
     it('should display help information', async () => {
-      const binPath = join(process.cwd(), 'bin.cjs');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       const promise = new Promise<string>((resolve, reject) => {
-        const process = spawn('node', [binPath, '--help'], {
+        const process = spawn('bun', [binPath, '--help'], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 

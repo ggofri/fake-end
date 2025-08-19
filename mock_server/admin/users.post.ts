@@ -1,5 +1,4 @@
 /**
- * Response interface for admin user creation
  * @guard {
  *  "condition": {
  *    "field": "user.role",

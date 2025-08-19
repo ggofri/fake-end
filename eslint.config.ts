@@ -87,6 +87,7 @@ export default tseslint.config(
       }],
       "complexity": ["error", 10],
       "max-depth": ["error", 4],
+      "max-lines": ["warn", 100],
       "max-lines-per-function": ["error", { "max": 50, "skipBlankLines": true, "skipComments": true }],
       "max-params": ["error", 4],
       "@typescript-eslint/explicit-function-return-type": "error",
@@ -99,9 +100,6 @@ export default tseslint.config(
   {
     files: [
       "**/logger.ts",
-      "**/logging/**/*.ts", 
-      "**/cli/**/*.ts",
-      "**/run.ts",
       "tests/**"
     ],
     rules: {
@@ -116,6 +114,12 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-explicit-any": "off",
     },
+  },
+  {
+    files: ["mock_server/**"],
+    rules: {
+      "max-lines": "off",
+    }
   },
   {
     files: ["**/__tests__/**/*", "**/*.test.ts", "**/*.spec.ts", "tests/**/*"],
@@ -141,6 +145,7 @@ export default tseslint.config(
       "@typescript-eslint/prefer-nullish-coalescing": "off",
       "@typescript-eslint/no-unnecessary-type-assertion": "off",
       "@typescript-eslint/ban-ts-comment": "off",
+      "max-lines": "off",
       "max-lines-per-function": "off",
       "no-magic-numbers": "off",
       "complexity": "off",
@@ -159,7 +164,6 @@ export default tseslint.config(
       "coverage/**/*",
       "*.config.ts",
       "eslint.config.ts",
-      "bin.cjs",
       "scripts/**/*",
     ],
   }
