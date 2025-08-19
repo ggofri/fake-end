@@ -43,7 +43,7 @@ export class TestServerManager {
     }
 
     return new Promise((resolve, reject) => {
-      const binPath = path.join(__dirname, '../../src/cli/index.ts');
+      const binPath = path.join(__dirname, '../../src/cli-commands/handlers/index.ts');
       const args = [binPath, 'run', '-p', port.toString(), '-d', mockDir];
       if (dynamicMocks) {
         args.push('--dynamic-mocks');
@@ -186,8 +186,8 @@ export class TestServerManager {
         if (existsSync(dir)) {
           rmSync(dir, { recursive: true, force: true });
         }
-      } catch (error) {
-        console.warn(`Failed to cleanup directory ${dir}:`, error);
+      } catch (err) {
+        console.warn(`Failed to cleanup directory ${dir}:`, err);
       }
     }
     this.testDirsToCleanup.clear();
@@ -196,9 +196,9 @@ export class TestServerManager {
   async forceCleanup(): Promise<void> {
     try {
       const { execSync } = await import('child_process');
-      execSync('pkill -f "fake-end" || pkill -f "src/cli/index.ts" || true', { stdio: 'pipe' });
-    } catch (error) {
-      console.error("Error when trying forceCleanup: ", error.message ?? error)
+      execSync('pkill -f "fake-end" || pkill -f "src/cli-commands/handlers/index.ts" || true', { stdio: 'pipe' });
+    } catch (err) {
+      console.error("Error when trying forceCleanup: ", err.message ?? err)
     }
     
     await this.cleanup();

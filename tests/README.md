@@ -197,7 +197,7 @@ bun test:e2e --verbose
 ```bash
 # Kill orphaned test processes
 pkill -f fake-end
-pkill -f src/cli/index.ts
+pkill -f src/cli-commands/handlers/index.ts
 
 # Clean temp directories
 rm -rf tests/fixtures/test-mock-*

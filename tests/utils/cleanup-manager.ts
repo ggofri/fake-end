@@ -33,8 +33,8 @@ export class CleanupManager {
       process.exit(0);
     });
 
-    process.on('uncaughtException', (error) => {
-      console.error('Uncaught Exception:', error);
+    process.on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
       this.cleanupSync();
       process.exit(1);
     });
@@ -53,8 +53,8 @@ export class CleanupManager {
       await this.cleanupTestDirectories();
       await this.cleanupRunningServers();
       console.log('✅ Test cleanup completed');
-    } catch (error) {
-      console.warn('⚠️  Some cleanup operations failed:', error);
+    } catch (err) {
+      console.warn('⚠️  Some cleanup operations failed:', err);
     }
   }
 
@@ -62,8 +62,8 @@ export class CleanupManager {
     try {
       this.cleanupTestDirectoriesSync();
       this.cleanupRunningServersSync();
-    } catch (error) {
-      console.warn('⚠️  Some cleanup operations failed:', error);
+    } catch (err) {
+      console.warn('⚠️  Some cleanup operations failed:', err);
     }
   }
 
@@ -89,8 +89,8 @@ export class CleanupManager {
         if (existsSync(fullPath)) {
           rmSync(fullPath, { recursive: true, force: true });
         }
-      } catch (error) {
-        console.warn(`Failed to remove ${dir}:`, error);
+      } catch (err) {
+        console.warn(`Failed to remove ${dir}:`, err);
       }
     }
   }
@@ -112,28 +112,28 @@ export class CleanupManager {
           if (existsSync(fullPath)) {
             rmSync(fullPath, { recursive: true, force: true });
           }
-        } catch (error) {
-          console.error("Error when cleaning tests directories: ", error.message ?? error)
+        } catch (err) {
+          console.error("Error when cleaning tests directories: ", err.message ?? err)
         }
       }
-    } catch (error) {
-      console.error("Error when cleaning tests directories: ", error.message ?? error)
+    } catch (err) {
+      console.error("Error when cleaning tests directories: ", err.message ?? err)
     }
   }
 
   async cleanupRunningServers(): Promise<void> {
     try {
-      execSync('pkill -f "fake-end" || pkill -f "src/cli/index.ts" || true', { stdio: 'pipe' });
-    } catch (error) {
-      console.error("Error when cleaning running servers: ", error.message ?? error)
+      execSync('pkill -f "fake-end" || pkill -f "src/cli-commands/handlers/index.ts" || true', { stdio: 'pipe' });
+    } catch (err) {
+      console.error("Error when cleaning running servers: ", err.message ?? err)
     }
   }
 
   cleanupRunningServersSync(): void {
     try {
-      execSync('pkill -f "fake-end" || pkill -f "src/cli/index.ts" || true', { stdio: 'pipe' });
-    } catch (error) {
-      console.error("Error when cleaning running servers sync: ", error.message ?? error)
+      execSync('pkill -f "fake-end" || pkill -f "src/cli-commands/handlers/index.ts" || true', { stdio: 'pipe' });
+    } catch (err) {
+      console.error("Error when cleaning running servers sync: ", err.message ?? err)
     }
   }
 
@@ -160,8 +160,8 @@ export class CleanupManager {
           rmSync(fullPath, { recursive: true, force: true });
           cleanedCount++;
         }
-      } catch (error) {
-        console.warn(`Failed to check/remove old directory ${dir}:`, error);
+      } catch (err) {
+        console.warn(`Failed to check/remove old directory ${dir}:`, err);
       }
     }
     
@@ -196,15 +196,15 @@ export class CleanupManager {
             } else {
               rmSync(fullPath, { force: true });
             }
-          } catch (error) {
-            console.error("Error when trying to force clean all: ", error.message ?? error)
+          } catch (err) {
+            console.error("Error when trying to force clean all: ", err.message ?? err)
           }
         }
       }
       
       console.log('✅ Force cleanup completed');
-    } catch (error) {
-      console.error('❌ Force cleanup failed:', error);
+    } catch (err) {
+      console.error('❌ Force cleanup failed:', err);
     }
   }
 }

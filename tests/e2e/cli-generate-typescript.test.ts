@@ -31,7 +31,7 @@ describe('CLI Generate TypeScript Functionality', () => {
 
   describe('TypeScript Interface Generation', () => {
     it('should generate TypeScript interfaces by default and create functional mock endpoints', async () => {
-      const binPath = join(process.cwd(), 'src/cli/index.ts');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       
       const generatePromise = new Promise<string>((resolve, reject) => {
         const generateProcess = spawn('bun', [
@@ -96,7 +96,7 @@ describe('CLI Generate TypeScript Functionality', () => {
     });
 
     it('should generate YAML files when --yaml flag is specified', async () => {
-      const binPath = join(process.cwd(), 'src/cli/index.ts');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       
       const generatePromise = new Promise<string>((resolve, reject) => {
         const generateProcess = spawn('bun', [
@@ -166,7 +166,7 @@ describe('CLI Generate TypeScript Functionality', () => {
     });
 
     it('should generate realistic mock values in TypeScript interfaces', async () => {
-      const binPath = join(process.cwd(), 'src/cli/index.ts');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       
       const generatePromise = new Promise<string>((resolve, reject) => {
         const generateProcess = spawn('bun', [
@@ -244,7 +244,7 @@ describe('CLI Generate TypeScript Functionality', () => {
     });
 
     it('should handle invalid cURL commands gracefully', async () => {
-      const binPath = join(process.cwd(), 'src/cli/index.ts');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       
       const generatePromise = new Promise<string>((resolve, reject) => {
         const generateProcess = spawn('bun', [
@@ -285,7 +285,7 @@ describe('CLI Generate TypeScript Functionality', () => {
     });
 
     it('should create nested directory structure when generating interfaces for paths with multiple segments', async () => {
-      const binPath = join(process.cwd(), 'src/cli/index.ts');
+      const binPath = join(process.cwd(), 'src/cli-commands/handlers/index.ts');
       
       const generatePromise = new Promise<string>((resolve, reject) => {
         const generateProcess = spawn('bun', [

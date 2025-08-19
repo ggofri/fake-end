@@ -23,9 +23,9 @@ export default async function globalSetup(): Promise<void> {
         cwd: path.join(__dirname, '..'), 
         stdio: 'pipe' 
       });
-    } catch (error) {
-      console.error('Failed to build project:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to build project:', err);
+      throw err;
     }
   }
 

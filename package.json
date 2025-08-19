@@ -8,11 +8,11 @@
   "description": "A modern TypeScript CLI tool for mocking backend APIs using YAML files",
   "main": "dist/index.js",
   "bin": {
-    "fake-end": "src/cli/index.ts"
+    "fake-end": "src/cli-commands/handlers/index.ts"
   },
   "scripts": {
-    "dev": "bun src/cli/index.ts",
-    "start": "bun src/cli/index.ts",
+    "dev": "bun src/cli-commands/handlers/index.ts",
+    "start": "bun src/cli-commands/handlers/index.ts",
     "build": "rm -rf dist && bun run tsc",
     "tsc": "tsc && tsc --project tsconfig.test.json && tsc-alias --resolve-full-paths",
     "tsc:no-emit": "tsc --noEmit && tsc --project tsconfig.test.json --noEmit",

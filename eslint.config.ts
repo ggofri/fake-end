@@ -100,9 +100,6 @@ export default tseslint.config(
   {
     files: [
       "**/logger.ts",
-      "**/logging/**/*.ts", 
-      "**/cli/**/*.ts",
-      "**/run.ts",
       "tests/**"
     ],
     rules: {
