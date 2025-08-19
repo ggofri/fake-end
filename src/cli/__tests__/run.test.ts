@@ -69,7 +69,7 @@ describe('CLI Run', () => {
       mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false, server: {} as any });
 
       await startServer(verboseOptions);
       expect(mockSetVerbose).toHaveBeenCalledWith(true);
@@ -91,7 +91,7 @@ describe('CLI Run', () => {
     it('should load endpoints and display appropriate messages', async () => {
       mockExistsSync.mockReturnValue(true);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false, server: {} as any });
 
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       await startServer(mockOptions);
@@ -109,11 +109,11 @@ describe('CLI Run', () => {
       mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       mockCreateServer.mockReturnValue(mockApp as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4001, attempted: [4000, 4001], fallbackUsed: true });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4001, attempted: [4000, 4001], fallbackUsed: true, server: {} as any });
 
       await startServer(mockOptions);
 
-      expect(mockCreateServer).toHaveBeenCalledWith(mockEndpoints);
+      expect(mockCreateServer).toHaveBeenCalledWith(mockEndpoints, 'mock_server');
       expect(mockStartServerWithPortFallback).toHaveBeenCalledWith(
         mockApp,
         4000,
@@ -126,19 +126,19 @@ describe('CLI Run', () => {
     it('should display endpoints and control instructions', async () => {
       mockExistsSync.mockReturnValue(true);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false, server: {} as any });
 
       mockLoadMockEndpoints.mockResolvedValue(mockEndpoints);
       await startServer(mockOptions);
       expect(consoleLogSpy).toHaveBeenCalledWith('BLUE: \n📋 Available endpoints:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('GRAY: \nPress Ctrl+C to stop the server');
+      expect(consoleLogSpy).toHaveBeenCalledWith('GRAY: Press Ctrl+C to stop the server');
     });
 
     it('should not display endpoints section when no endpoints exist', async () => {
       consoleLogSpy.mockClear();
       mockExistsSync.mockReturnValue(true);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false, server: {} as any });
       mockLoadMockEndpoints.mockResolvedValue([]);
 
       await startServer(mockOptions);
@@ -169,7 +169,7 @@ describe('CLI Run', () => {
       mockExistsSync.mockReturnValue(true);
       mockLoadMockEndpoints.mockResolvedValue(coloredEndpoints);
       mockCreateServer.mockReturnValue({} as any);
-      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false });
+      mockStartServerWithPortFallback.mockResolvedValue({ port: 4000, attempted: [4000], fallbackUsed: false, server: {} as any });
 
       await startServer({ port: 4000, mockDir: 'test', verbose: false });
 
@@ -190,7 +190,7 @@ describe('CLI Run', () => {
       let loggerFunctions: any;
       mockStartServerWithPortFallback.mockImplementation(async (_app, _port, _maxRetries, logger) => {
         loggerFunctions = logger;
-        return { port: 3001, attempted: [3000, 3001], fallbackUsed: true };
+        return { port: 3001, attempted: [3000, 3001], fallbackUsed: true, server: {} as any };
       });
 
       await startServer(customOptions);

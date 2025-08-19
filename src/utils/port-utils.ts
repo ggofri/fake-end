@@ -1,4 +1,4 @@
-import { createServer } from 'http';
+import { createServer, Server } from 'http';
 import { Application } from 'express';
 import { PORT_FALLBACK_MAX_ATTEMPTS } from '@/constants';
 
@@ -6,6 +6,10 @@ export interface PortResult {
   port: number;
   attempted: number[];
   fallbackUsed: boolean;
+}
+
+export interface ServerResult extends PortResult {
+  server: Server;
 }
 
 export async function isPortAvailable(port: number): Promise<boolean> {
@@ -59,7 +63,7 @@ export async function startServerWithPortFallback(
     warn: (message: string) => void;
     info: (message: string) => void;
   }
-): Promise<PortResult> {
+): Promise<ServerResult> {
   const portResult = await findAvailablePort(desiredPort, maxAttempts);
   
   return new Promise((resolve, reject) => {
@@ -68,7 +72,10 @@ export async function startServerWithPortFallback(
         logger.warn(`⚠️  Port ${desiredPort} was not available`);
         logger.info(`🔀 Using fallback port ${portResult.port}`);
       }
-      resolve(portResult);
+      resolve({
+        ...portResult,
+        server
+      });
     });
     
     server.on('error', (error: Error) => {

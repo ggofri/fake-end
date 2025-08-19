@@ -32,27 +32,27 @@ describe('request-processor', () => {
     beforeEach(() => {
       jest.clearAllMocks();
       mockProcessDynamicMocks.mockReturnValue(undefined);
-      mockProcessGuard.mockReturnValue(undefined);
+      mockProcessGuard.mockResolvedValue(undefined);
       mockProcessInterpolation.mockImplementation((body) => body);
     });
 
-    it('should return original endpoint data when no processors modify response', () => {
-      const result = processRequest(baseEndpoint, mockRequest);
+    it('should return original endpoint data when no processors modify response', async () => {
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 200,
         responseBody: { message: 'original' }
       });
       expect(mockProcessDynamicMocks).toHaveBeenCalledWith(baseEndpoint, mockRequest);
-      expect(mockProcessGuard).toHaveBeenCalledWith(baseEndpoint, mockRequest);
+      expect(mockProcessGuard).toHaveBeenCalledWith(baseEndpoint, mockRequest, undefined);
       expect(mockProcessInterpolation).toHaveBeenCalledWith({ message: 'original' }, mockRequest);
     });
 
-    it('should use dynamic mock result when available', () => {
+    it('should use dynamic mock result when available', async () => {
       const dynamicResult = { message: 'dynamic' };
       mockProcessDynamicMocks.mockReturnValue(dynamicResult);
 
-      const result = processRequest(baseEndpoint, mockRequest);
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 200,
@@ -61,11 +61,11 @@ describe('request-processor', () => {
       expect(mockProcessInterpolation).toHaveBeenCalledWith(dynamicResult, mockRequest);
     });
 
-    it('should use guard result when available', () => {
+    it('should use guard result when available', async () => {
       const guardResult = { status: 403, body: { error: 'forbidden' } };
-      mockProcessGuard.mockReturnValue(guardResult);
+      mockProcessGuard.mockResolvedValue(guardResult);
 
-      const result = processRequest(baseEndpoint, mockRequest);
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 403,
@@ -74,11 +74,11 @@ describe('request-processor', () => {
       expect(mockProcessInterpolation).toHaveBeenCalledWith({ error: 'forbidden' }, mockRequest);
     });
 
-    it('should process interpolation on final response body', () => {
+    it('should process interpolation on final response body', async () => {
       const interpolatedResult = { message: 'interpolated' };
       mockProcessInterpolation.mockReturnValue(interpolatedResult);
 
-      const result = processRequest(baseEndpoint, mockRequest);
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 200,
@@ -86,16 +86,16 @@ describe('request-processor', () => {
       });
     });
 
-    it('should apply processors in correct order: dynamic mocks, guard, then interpolation', () => {
+    it('should apply processors in correct order: dynamic mocks, guard, then interpolation', async () => {
       const dynamicResult = { message: 'dynamic' };
       const guardResult = { status: 401, body: { error: 'unauthorized' } };
       const interpolatedResult = { error: 'unauthorized - user 123' };
 
       mockProcessDynamicMocks.mockReturnValue(dynamicResult);
-      mockProcessGuard.mockReturnValue(guardResult);
+      mockProcessGuard.mockResolvedValue(guardResult);
       mockProcessInterpolation.mockReturnValue(interpolatedResult);
 
-      const result = processRequest(baseEndpoint, mockRequest);
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 401,
@@ -103,18 +103,18 @@ describe('request-processor', () => {
       });
       
       expect(mockProcessDynamicMocks).toHaveBeenCalledWith(baseEndpoint, mockRequest);
-      expect(mockProcessGuard).toHaveBeenCalledWith(baseEndpoint, mockRequest);
+      expect(mockProcessGuard).toHaveBeenCalledWith(baseEndpoint, mockRequest, undefined);
       expect(mockProcessInterpolation).toHaveBeenCalledWith({ error: 'unauthorized' }, mockRequest);
     });
 
-    it('should handle both dynamic mocks and guard processing', () => {
+    it('should handle both dynamic mocks and guard processing', async () => {
       const dynamicResult = { message: 'dynamic', id: 456 };
       const guardResult = { status: 400, body: { error: 'validation failed' } };
 
       mockProcessDynamicMocks.mockReturnValue(dynamicResult);
-      mockProcessGuard.mockReturnValue(guardResult);
+      mockProcessGuard.mockResolvedValue(guardResult);
 
-      const result = processRequest(baseEndpoint, mockRequest);
+      const result = await processRequest(baseEndpoint, mockRequest);
 
       expect(result).toEqual({
         responseStatus: 400,

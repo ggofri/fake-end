@@ -4,3 +4,4 @@ export { evaluateArrowFunction, tryParseJson, isArrowFunction, isBodyAwareFuncti
 export { resolveMockValue } from './mock-value-resolver';
 export { evaluateFakerFunction, isFakerExpression } from './faker-evaluator';
 export { generateRealisticValue } from './realistic-value-generator';
+export { interfaceResolver } from './interface-resolver';

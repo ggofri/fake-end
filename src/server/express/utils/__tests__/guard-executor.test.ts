@@ -18,10 +18,12 @@ describe('guard-executor', () => {
     }
   };
 
+  const mockDir = '/test/mock';
+
   describe('executeGuard', () => {
-    it('should return right when condition is true', () => {
+    it('should return right when condition is true', async () => {
       const requestBody = { email: 'admin@test.com' };
-      const result = executeGuard(mockGuard, requestBody);
+      const result = await executeGuard(mockGuard, requestBody, mockDir);
       
       expect(isRight(result)).toBe(true);
       if (isRight(result)) {
@@ -30,9 +32,9 @@ describe('guard-executor', () => {
       }
     });
 
-    it('should return left when condition is false', () => {
+    it('should return left when condition is false', async () => {
       const requestBody = { email: 'user@test.com' };
-      const result = executeGuard(mockGuard, requestBody);
+      const result = await executeGuard(mockGuard, requestBody, mockDir);
       
       expect(isLeft(result)).toBe(true);
       if (isLeft(result)) {
@@ -41,7 +43,7 @@ describe('guard-executor', () => {
       }
     });
 
-    it('should handle not_equals operator', () => {
+    it('should handle not_equals operator', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'status',
@@ -52,11 +54,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Valid status' } }
       };
 
-      const result = executeGuard(guard, { status: 'inactive' });
+      const result = await executeGuard(guard, { status: 'inactive' }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should handle contains operator for strings', () => {
+    it('should handle contains operator for strings', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'message',
@@ -67,11 +69,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'No error' } }
       };
 
-      const result = executeGuard(guard, { message: 'This is an error message' });
+      const result = await executeGuard(guard, { message: 'This is an error message' }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should handle contains operator for arrays', () => {
+    it('should handle contains operator for arrays', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'tags',
@@ -82,11 +84,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Regular access' } }
       };
 
-      const result = executeGuard(guard, { tags: ['user', 'admin', 'editor'] });
+      const result = await executeGuard(guard, { tags: ['user', 'admin', 'editor'] }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should handle exists operator', () => {
+    it('should handle exists operator', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'userId',
@@ -96,11 +98,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'User exists' } }
       };
 
-      const result = executeGuard(guard, { userId: '123' });
+      const result = await executeGuard(guard, { userId: '123' }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should handle not_exists operator', () => {
+    it('should handle not_exists operator', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'deletedAt',
@@ -110,11 +112,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Not deleted' } }
       };
 
-      const result = executeGuard(guard, { id: '123' });
+      const result = await executeGuard(guard, { id: '123' }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should handle nested field paths', () => {
+    it('should handle nested field paths', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'user.role',
@@ -125,11 +127,11 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Admin access' } }
       };
 
-      const result = executeGuard(guard, { user: { role: 'admin', id: '123' } });
+      const result = await executeGuard(guard, { user: { role: 'admin', id: '123' } }, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
-    it('should return left when nested field does not exist', () => {
+    it('should return left when nested field does not exist', async () => {
       const guard: GuardFunction = {
         condition: {
           field: 'user.role',
@@ -140,7 +142,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Admin access' } }
       };
 
-      const result = executeGuard(guard, { userId: '123' });
+      const result = await executeGuard(guard, { userId: '123' }, mockDir);
       expect(isLeft(result)).toBe(true);
     });
   });

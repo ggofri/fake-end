@@ -27,7 +27,15 @@ export interface MockStrategyConfig {
   mockStrategy?: 'sanitize' | 'real' | 'faker';
 }
 
-export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig, OutputFormatConfig, MockStrategyConfig {}
+export interface ErrorResponseConfig {
+  error?: boolean;
+}
+
+export interface SuccessResponseConfig {
+  success?: boolean;
+}
+
+export interface GenerateOptions extends CurlSource, OutputConfig, ExecutionConfig, OllamaConfig, OutputFormatConfig, MockStrategyConfig, ErrorResponseConfig, SuccessResponseConfig {}
 
 export interface CurlInfo {
   method: string;

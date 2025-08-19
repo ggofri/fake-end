@@ -17,7 +17,7 @@ describe('guard-processor', () => {
       jest.clearAllMocks();
     });
 
-    it('should return undefined when endpoint has no guard', () => {
+    it('should return undefined when endpoint has no guard', async () => {
       const endpoint: ParsedEndpoint = {
         status: 200,
         body: {},
@@ -27,13 +27,13 @@ describe('guard-processor', () => {
         fullPath: ''
       };
 
-      const result = processGuard(endpoint, mockRequest);
+      const result = await processGuard(endpoint, mockRequest);
 
       expect(result).toBeUndefined();
       expect(mockExecuteGuard).not.toHaveBeenCalled();
     });
 
-    it('should execute guard and return result when guard exists', () => {
+    it('should execute guard and return result when guard exists', async () => {
       const guardCondition: GuardFunction = {
         condition: { field: 'role', operator: 'equals', value: 'admin' },
         left: { status: 403, body: { error: 'Forbidden' } },
@@ -57,9 +57,9 @@ describe('guard-processor', () => {
         }
       };
 
-      mockExecuteGuard.mockReturnValue(guardExecutorResult);
+      mockExecuteGuard.mockResolvedValue(guardExecutorResult);
 
-      const result = processGuard(endpoint, mockRequest);
+      const result = await processGuard(endpoint, mockRequest);
 
       expect(result).toEqual({
         status: 403,
@@ -67,11 +67,12 @@ describe('guard-processor', () => {
       });
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
-        { userId: 123, role: 'admin' }
+        { userId: 123, role: 'admin' },
+        ''
       );
     });
 
-    it('should handle guard result with null body', () => {
+    it('should handle guard result with null body', async () => {
       const guardCondition: GuardFunction = {
         condition: { field: 'userId', operator: 'exists' },
         left: { status: 401, body: null },
@@ -95,9 +96,9 @@ describe('guard-processor', () => {
         }
       };
 
-      mockExecuteGuard.mockReturnValue(guardExecutorResult);
+      mockExecuteGuard.mockResolvedValue(guardExecutorResult);
 
-      const result = processGuard(endpoint, mockRequest);
+      const result = await processGuard(endpoint, mockRequest);
 
       expect(result).toEqual({
         status: 401,
@@ -105,7 +106,7 @@ describe('guard-processor', () => {
       });
     });
 
-    it('should handle guard result with undefined body', () => {
+    it('should handle guard result with undefined body', async () => {
       const guardCondition: GuardFunction = {
         condition: { field: 'token', operator: 'exists' },
         left: { status: 400, body: undefined },
@@ -129,9 +130,9 @@ describe('guard-processor', () => {
         }
       };
 
-      mockExecuteGuard.mockReturnValue(guardExecutorResult);
+      mockExecuteGuard.mockResolvedValue(guardExecutorResult);
 
-      const result = processGuard(endpoint, mockRequest);
+      const result = await processGuard(endpoint, mockRequest);
 
       expect(result).toEqual({
         status: 400,
@@ -139,7 +140,7 @@ describe('guard-processor', () => {
       });
     });
 
-    it('should handle request with non-object body', () => {
+    it('should handle request with non-object body', async () => {
       const requestWithStringBody = {
         body: 'invalid'
       } as Request;
@@ -167,9 +168,9 @@ describe('guard-processor', () => {
         }
       };
 
-      mockExecuteGuard.mockReturnValue(guardExecutorResult);
+      mockExecuteGuard.mockResolvedValue(guardExecutorResult);
 
-      const result = processGuard(endpoint, requestWithStringBody);
+      const result = await processGuard(endpoint, requestWithStringBody);
 
       expect(result).toEqual({
         status: 422,
@@ -177,11 +178,12 @@ describe('guard-processor', () => {
       });
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
-        {} 
+        {},
+        ''
       );
     });
 
-    it('should handle request with null body', () => {
+    it('should handle request with null body', async () => {
       const requestWithNullBody = {
         body: null
       } as Request;
@@ -201,20 +203,21 @@ describe('guard-processor', () => {
         guard: guardCondition
       };
 
-      mockExecuteGuard.mockReturnValue({
+      mockExecuteGuard.mockResolvedValue({
         _tag: 'Right' as const,
         value: { status: 400, body: { error: 'Body required' } }
       });
 
-      processGuard(endpoint, requestWithNullBody);
+      await processGuard(endpoint, requestWithNullBody);
 
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
-        {} 
+        {},
+        ''
       );
     });
 
-    it('should handle request with array body', () => {
+    it('should handle request with array body', async () => {
       const requestWithArrayBody = {
         body: [1, 2, 3]
       } as Request;
@@ -234,16 +237,17 @@ describe('guard-processor', () => {
         guard: guardCondition
       };
 
-      mockExecuteGuard.mockReturnValue({
+      mockExecuteGuard.mockResolvedValue({
         _tag: 'Right' as const,
         value: { status: 200, body: { success: true } }
       });
 
-      processGuard(endpoint, requestWithArrayBody);
+      await processGuard(endpoint, requestWithArrayBody);
 
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
-        {} 
+        {},
+        ''
       );
     });
   });

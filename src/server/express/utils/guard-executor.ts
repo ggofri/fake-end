@@ -1,4 +1,6 @@
-import { GuardFunction, GuardCondition, Either, left, right } from '@/types';
+import { GuardFunction, GuardCondition, Either, left, right, isGuardInterfaceResponse } from '@/types';
+import { interfaceResolver } from '@/server/typescript/utils/interface-resolver';
+import { generateMockFromInterface } from '@/server/typescript/generators';
 
 function evaluateCondition(condition: GuardCondition, body: Record<string, unknown>): boolean {
   const { field, operator, value } = condition;
@@ -47,14 +49,35 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-export function executeGuard(
+export async function executeGuard(
   guard: GuardFunction,
-  requestBody: Record<string, unknown>
-): Either<{ status: number; body?: unknown }, { status: number; body?: unknown }> {
+  requestBody: Record<string, unknown>,
+  mockDir: string
+): Promise<Either<{ status: number; body?: unknown }, { status: number; body?: unknown }>> {
   const conditionResult = evaluateCondition(guard.condition, requestBody);
   
   if (conditionResult) {
-    return right(guard.right);
+    const resolvedResponse = await resolveGuardResponse(guard.right, mockDir, requestBody);
+    return right(resolvedResponse);
   }
-  return left(guard.left);
+  
+  const resolvedResponse = await resolveGuardResponse(guard.left, mockDir, requestBody);
+  return left(resolvedResponse);
+}
+
+async function resolveGuardResponse(
+  response: GuardFunction['left']  ,
+  mockDir: string,
+  requestBody: Record<string, unknown>
+): Promise<{ status: number; body?: unknown }> {
+  if (isGuardInterfaceResponse(response)) {
+    const interfaceDecl = await interfaceResolver.resolveInterface(response.interface, mockDir);
+    if (interfaceDecl) {
+      const mockBody = generateMockFromInterface(interfaceDecl, true, requestBody);
+      return { status: response.status, body: mockBody };
+    }
+    return { status: response.status, body: {} };
+  }
+  
+  return { status: response.status, body: response.body };
 }

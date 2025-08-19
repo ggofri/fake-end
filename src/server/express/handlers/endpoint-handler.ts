@@ -8,7 +8,7 @@ function isValidLowercaseMethod(method: string): method is validLowercaseMethods
   return ['get', 'post', 'put', 'delete', 'patch'].includes(method);
 }
 
-export function registerEndpoints(app: Application, endpoints: ParsedEndpoint[]): void {
+export function registerEndpoints(app: Application, endpoints: ParsedEndpoint[], mockDir?: string): void {
   for (const endpoint of endpoints) {
     if (!isValidMethod(endpoint.method.toUpperCase())) {
       continue;
@@ -20,18 +20,18 @@ export function registerEndpoints(app: Application, endpoints: ParsedEndpoint[])
     }
     
     app[lowercaseMethod](endpoint.fullPath, (req: Request, res: Response) => {
-      void createEndpointHandler(endpoint)(req, res);
+      void createEndpointHandler(endpoint, mockDir)(req, res);
     });
   }
 }
 
-function createEndpointHandler(endpoint: ParsedEndpoint) {
+function createEndpointHandler(endpoint: ParsedEndpoint, mockDir?: string) {
   return async (req: Request, res: Response): Promise<void> => {
     const startTime = Date.now();
     logRequest(endpoint.method, req.path, endpoint.filePath);
 
     await applyDelay(endpoint.delayMs);
-    const { responseStatus, responseBody } = processRequest(endpoint, req);
+    const { responseStatus, responseBody } = await processRequest(endpoint, req, mockDir);
     
     const duration = Date.now() - startTime;
     logResponse(responseStatus, duration);

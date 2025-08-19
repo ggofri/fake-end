@@ -6,9 +6,10 @@ import { TypeScriptFileManager } from './typescript-file-manager';
 import { CurlCommandProcessor, ExecutionDecisionMaker, ResponseGenerator } from '@/cli/generate/processors/';
 
 export class DependencyContainer {
-  static create(options?: Pick<GenerateOptions, 'yaml' | 'mockStrategy'>): MockGeneratorDependencies {
+  static create(options?: Pick<GenerateOptions, 'yaml' | 'mockStrategy' | 'error' | 'success'>): MockGeneratorDependencies {
     const useYamlFormat = options?.yaml === true;
-    const mockStrategy = options?.mockStrategy ?? 'sanitize';
+    const errorMode = options?.error === true;
+    const successMode = options?.success === true;
     
     return {
       logger: new ConsoleLogger(),
@@ -16,7 +17,7 @@ export class DependencyContainer {
       executionDecider: new ExecutionDecisionMaker(),
       responseGenerator: new ResponseGenerator(),
       endpointFactory: new MockEndpointFactory(),
-      fileManager: useYamlFormat ? new FileOutputManager() : new TypeScriptFileManager(useYamlFormat, mockStrategy)
+      fileManager: useYamlFormat ? new FileOutputManager() : new TypeScriptFileManager(useYamlFormat, errorMode, successMode)
     };
   }
 }

@@ -32,16 +32,24 @@ export interface GuardCondition {
   value?: unknown;
 }
 
+export interface GuardResponse {
+  status: number;
+  body?: unknown;
+}
+
+export interface GuardInterfaceResponse {
+  status: number;
+  interface: string;
+}
+
 export interface GuardFunction {
   condition: GuardCondition;
-  left: {
-    status: number;
-    body?: unknown;
-  };
-  right: {
-    status: number;
-    body?: unknown;
-  };
+  left: GuardResponse | GuardInterfaceResponse;
+  right: GuardResponse | GuardInterfaceResponse;
+}
+
+export function isGuardInterfaceResponse(response: GuardResponse | GuardInterfaceResponse): response is GuardInterfaceResponse {
+  return 'interface' in response;
 }
 
 export interface MockEndpoint {
@@ -66,4 +74,5 @@ export interface ServerOptions {
   verbose?: boolean;
   noCache?: boolean;
   dynamicMocks?: boolean;
+  watch?: boolean;
 };

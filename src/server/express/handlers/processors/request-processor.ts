@@ -9,7 +9,7 @@ export interface RequestLike {
   body?: unknown;
 }
 
-export function processRequest(endpoint: ParsedEndpoint, req: RequestLike): { responseStatus: number; responseBody: unknown } {
+export async function processRequest(endpoint: ParsedEndpoint, req: RequestLike, mockDir?: string): Promise<{ responseStatus: number; responseBody: unknown }> {
   let responseStatus = endpoint.status;
   let responseBody = endpoint.body;
   
@@ -18,7 +18,7 @@ export function processRequest(endpoint: ParsedEndpoint, req: RequestLike): { re
     responseBody = result;
   }
 
-  const guardResult = processGuard(endpoint, req);
+  const guardResult = await processGuard(endpoint, req, mockDir);
   if (guardResult) {
     responseStatus = guardResult.status;
     responseBody = guardResult.body;

@@ -11,6 +11,7 @@ interface RunOptions {
   verbose?: boolean;
   noCache?: boolean;
   dynamicMocks?: boolean;
+  watch?: boolean;
 }
 
 interface GenerateOptions {
@@ -40,6 +41,7 @@ program
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--no-cache', 'Disable TypeScript interface caching for development')
   .option('--dynamic-mocks', 'Execute mock functions on each request instead of at startup')
+  .option('--watch', 'Enable hot reload for mock files and source code changes')
   .action(async (options: RunOptions) => {
     try {
       await startServer({
@@ -47,7 +49,8 @@ program
         mockDir: options.dir,
         verbose: options.verbose ?? false,
         noCache: options.noCache ?? false,
-        dynamicMocks: options.dynamicMocks ?? false
+        dynamicMocks: options.dynamicMocks ?? false,
+        watch: options.watch ?? false
       });
     } catch (error) {
       console.error(chalk.red('Error starting server:'), error);
@@ -70,7 +73,9 @@ program
   .option('--use-real-values', 'Use actual API response values for all fields')
   .option('--use-faker', 'Use faker.js generated values for all fields')
   .option('--sanitize', 'Use real values but replace sensitive fields with faker.js values (default)')
-  .action(async (options: GenerateOptions & { useRealValues?: boolean; useFaker?: boolean; sanitize?: boolean }) => {
+  .option('--error', 'Generate error response and create dual-interface guard structure')
+  .option('--success', 'Generate success response and create dual-interface guard structure')
+  .action(async (options: GenerateOptions & { useRealValues?: boolean; useFaker?: boolean; sanitize?: boolean; error?: boolean; success?: boolean }) => {
     try {
       
       let mockStrategy: 'sanitize' | 'real' | 'faker' = 'sanitize';

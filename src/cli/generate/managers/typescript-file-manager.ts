@@ -1,19 +1,26 @@
-import fs from 'fs/promises';
 import path from 'path';
 import { CurlInfo, MockEndpoint, FileManager } from '@/cli/generate/types';
 import { generateFilePath, writeYamlFile } from '@/cli/generate/utils/file-utils';
-import { generateTypeScriptInterface } from '@/cli/generate/utils/typescript-generator';
-import { MockStrategy } from '@/cli/generate/utils/typescript/mock-value-generator';
-import { isNil } from '@/utils';
+import { createTypeScriptFilePath } from '@/cli/generate/utils/typescript/file-path-utils';
+import { ensureDirectory, writeFileContent } from '@/cli/generate/utils/typescript/file-system-utils';
+import { resolveContentMode, type ContentMode } from '@/cli/generate/utils/typescript/mode-resolver';
+import { contentGenerators } from '@/cli/generate/utils/typescript/content-generator';
 
 export class TypeScriptFileManager implements FileManager {
   constructor(
     private useYamlFormat: boolean = false, 
-    private mockStrategy: MockStrategy = 'sanitize'
+    private errorMode: boolean = false,
+    private successMode: boolean = false
   ) {}
 
+  private readonly contentGeneratorMap = {
+    standard: contentGenerators.standard,
+    error: contentGenerators.error,
+    success: contentGenerators.success
+  } as const;
+
   async ensureOutputDirectory(outputPath: string): Promise<void> {
-    await fs.mkdir(outputPath, { recursive: true });
+    await ensureDirectory(outputPath);
   }
 
   async writeEndpointFile(curlInfo: CurlInfo, output: string, endpoint: MockEndpoint): Promise<string> {
@@ -31,37 +38,31 @@ export class TypeScriptFileManager implements FileManager {
   }
 
   private async writeTypeScriptFile(curlInfo: CurlInfo, output: string, endpoint: MockEndpoint): Promise<string> {
-    const filePath = this.generateTypeScriptFilePath(curlInfo, output);
+    const filePath = createTypeScriptFilePath(curlInfo, output);
     const dirPath = path.dirname(filePath);
     
-    await fs.mkdir(dirPath, { recursive: true });
+    await ensureDirectory(dirPath);
     
-    const interfaceContent = generateTypeScriptInterface(curlInfo, endpoint.body, undefined, this.mockStrategy);
-    await fs.writeFile(filePath, interfaceContent, 'utf8');
+    const mode = await resolveContentMode({
+      errorMode: this.errorMode,
+      successMode: this.successMode,
+      filePath
+    });
+    
+    const content = await this.generateContent(mode, curlInfo, endpoint, filePath);
+    await writeFileContent(filePath, content);
+    
     return filePath;
   }
 
-  private generateTypeScriptFilePath(curlInfo: CurlInfo, outputDir: string): string {
-    const { method, path: urlPath } = curlInfo;
-    
-    let pathParts: string[] = []
-    let paramCount = 1
-    urlPath.split('/').forEach(part => {
-      if (isNil(part) || !part.trim()) return
-      if (isNaN(Number(part))) return pathParts.push(part)
-      pathParts.push(`:param${paramCount}`)
-      return paramCount++
-    });
-    
-    if (pathParts.length === 0) {
-      pathParts = ['api'];
-    }
-    
-    const fileName = `${pathParts[pathParts.length - 1]}.${method.toLowerCase()}.ts`;
-    const dirPath = pathParts.length > 1 ? 
-      path.join(outputDir, ...pathParts.slice(0, -1)) : 
-      outputDir;
-    
-    return path.join(dirPath, fileName);
+  private async generateContent(
+    mode: ContentMode,
+    curlInfo: CurlInfo,
+    endpoint: MockEndpoint,
+    filePath: string
+  ): Promise<string> {
+    const generator = this.contentGeneratorMap[mode];
+    return generator.generate(curlInfo, endpoint, filePath);
   }
+
 }
