@@ -43,8 +43,8 @@ describe('SERVER_RECOVERY_FROM_ERRORS', () => {
         body: 'invalid json',
         headers: { 'Content-Type': 'application/json' }
       });
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
     }
     
     const recoveryResponse = await context.client.post('/api/robust', { recovery: true });

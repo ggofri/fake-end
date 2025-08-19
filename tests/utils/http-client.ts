@@ -1,3 +1,4 @@
+
 export interface HttpResponse {
   status: number;
   statusText: string;
@@ -79,19 +80,19 @@ export class HttpClient {
         body: responseBody,
         responseTime
       };
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       
       console.error('HTTP Request failed:', {
         url,
         method,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined
       });
       
-      throw new Error(`Request failed: ${error instanceof Error ? error.message : error ?? 'Unknown error'}`);
+      throw new Error(`Request failed: ${err instanceof Error ? err.message : err ?? 'Unknown error'}`);
     }
   }
 

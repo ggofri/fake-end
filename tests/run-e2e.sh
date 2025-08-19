@@ -30,7 +30,7 @@ fi
 
 echo -e "${YELLOW}Cleaning up existing processes...${NC}"
 pkill -f "fake-end" || true
-pkill -f "src/cli/index.ts" || true
+pkill -f "src/cli-commands/handlers/index.ts" || true
 sleep 1
 
 export NODE_ENV=test
@@ -77,7 +77,7 @@ else
     # Cleanup on failure
     echo -e "${YELLOW}Cleaning up after test failure...${NC}"
     pkill -f "fake-end" || true
-    pkill -f "src/cli/index.ts" || true
+    pkill -f "src/cli-commands/handlers/index.ts" || true
     
     exit 1
 fi
