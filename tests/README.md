@@ -87,11 +87,11 @@ This test suite follows a **minimalistic, risk-driven approach**:
 
 ### Quick Start
 ```bash
-# Run all focused tests
+# Run all tests (single-threaded, stable)
 bun test:e2e
 
-# Or use the enhanced test runner
-./tests/run-e2e.sh
+# Run all tests (parallel, faster)
+bun run test:e2e:parallel
 ```
 
 ### Prerequisites

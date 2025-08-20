@@ -1,4 +1,4 @@
-import { createTestContext, cleanupTestContext, createYamlMockFile, TestContext } from '../../utils';
+import { createTestContext, cleanupTestContext, createYamlMockFile, restartServerWithMocks, TestContext } from '../../utils';
 import { serverManager } from '../../utils';
 
 describe('BASIC_HTTP_POST', () => {
@@ -31,8 +31,9 @@ describe('BASIC_HTTP_POST', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'api.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, {
+      'api.yaml': yamlContent
+    });
     
     const response = await context.client.post('/api/users', {
       name: 'Alice',

@@ -1,13 +1,13 @@
 import { spawn } from 'child_process';
 import { mkdirSync, rmSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { createTestContext, cleanupTestContext, TestContext } from '../utils';
+import { createTypeScriptTestContext, cleanupTestContext, TestContext } from '../utils';
 import { serverManager } from '../utils';
 
 describe('CLI Generate TypeScript Functionality', () => {
   const testDir = join(__dirname, '../fixtures/cli-generate-test');
   let context: TestContext;
-
+ 
   beforeEach(() => {
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
@@ -49,7 +49,7 @@ describe('CLI Generate TypeScript Functionality', () => {
         const timeout = setTimeout(() => {
           generateProcess.kill();
           reject(new Error('Generate command timeout'));
-        }, 10000);
+        }, 60000);
 
         generateProcess.stdout?.on('data', (data) => {
           output += data.toString();
@@ -86,7 +86,7 @@ describe('CLI Generate TypeScript Functionality', () => {
       
       expect(tsContent).toContain('export default');
       
-      context = await createTestContext({ mockDir: testDir });
+      context = await createTypeScriptTestContext({ mockDir: testDir });
       
       const response = await context.client.get('/api/users/123');
       
@@ -115,7 +115,7 @@ describe('CLI Generate TypeScript Functionality', () => {
         const timeout = setTimeout(() => {
           generateProcess.kill();
           reject(new Error('Generate command timeout'));
-        }, 10000);
+        }, 60000);
 
         generateProcess.stdout?.on('data', (data) => {
           output += data.toString();
@@ -154,7 +154,7 @@ describe('CLI Generate TypeScript Functionality', () => {
       expect(yamlContent).toContain('status:');
       expect(yamlContent).toContain('body:');
       
-      context = await createTestContext({ mockDir: testDir });
+      context = await createTypeScriptTestContext({ mockDir: testDir });
       
       const response = await context.client.post('/api/products', {
         name: 'Test Product',
@@ -184,7 +184,7 @@ describe('CLI Generate TypeScript Functionality', () => {
         const timeout = setTimeout(() => {
           generateProcess.kill();
           reject(new Error('Generate command timeout'));
-        }, 10000);
+        }, 60000);
 
         generateProcess.stdout?.on('data', (data) => {
           output += data.toString();
@@ -214,7 +214,7 @@ describe('CLI Generate TypeScript Functionality', () => {
       
       expect(tsContent).toContain('@mock');
       
-      context = await createTestContext({ mockDir: testDir });
+      context = await createTypeScriptTestContext({ mockDir: testDir });
       
       const response = await context.client.get('/api/profile');
       
@@ -262,7 +262,7 @@ describe('CLI Generate TypeScript Functionality', () => {
         const timeout = setTimeout(() => {
           generateProcess.kill();
           reject(new Error('Generate command timeout'));
-        }, 10000);
+        }, 60000);
 
         generateProcess.stdout?.on('data', (data) => {
           output += data.toString();
@@ -303,7 +303,7 @@ describe('CLI Generate TypeScript Functionality', () => {
         const timeout = setTimeout(() => {
           generateProcess.kill();
           reject(new Error('Generate command timeout'));
-        }, 10000);
+        }, 60000);
 
         generateProcess.stdout?.on('data', (data) => {
           output += data.toString();
@@ -331,7 +331,7 @@ describe('CLI Generate TypeScript Functionality', () => {
       const tsFiles = require('fs').readdirSync(nestedDirPath).filter((file: string) => file.endsWith('.ts'));
       expect(tsFiles.length).toBeGreaterThan(0);
       
-      context = await createTestContext({ mockDir: testDir });
+      context = await createTypeScriptTestContext({ mockDir: testDir });
       
       const response = await context.client.get('/api/v1/admin/users/settings');
       

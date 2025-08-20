@@ -44,6 +44,8 @@ const PORT_RANGES: Record<string, number> = {
   'delay-simulation.test.ts': 8000
 };
 
+const usedPorts = new Set<number>();
+
 export function getPortForTestFile(): number {
   const stack = new Error().stack || '';
   const testFileMatch = stack.match(/([^/\\]+\.test\.ts)/);
@@ -51,9 +53,16 @@ export function getPortForTestFile(): number {
   
   const basePort = PORT_RANGES[testFileName as keyof typeof PORT_RANGES] || 7000;
   
-  const offset = Math.floor(Math.random() * 50);
+  const hrtime = process.hrtime();
+  const offset = (hrtime[0] + hrtime[1]) % 50;
+  let port = basePort + offset;
   
-  return basePort + offset;
+  while (usedPorts.has(port)) {
+    port = basePort + ((port - basePort + 1) % 50);
+  }
+  
+  usedPorts.add(port);
+  return port;
 }
 
 export function getPortForTest(testName: string): number {
@@ -63,8 +72,18 @@ export function getPortForTest(testName: string): number {
   
   const basePort = PORT_RANGES[testFileName as keyof typeof PORT_RANGES] || 7000;
   
-  const hash = createHash('md5').update(testName).digest('hex');
+  const hash = createHash('md5').update(testName + process.pid).digest('hex');
   const offset = parseInt(hash.substring(0, 2), 16) % 50;
+  let port = basePort + offset;
   
-  return basePort + offset;
+  while (usedPorts.has(port)) {
+    port = basePort + ((port - basePort + 1) % 50);
+  }
+  
+  usedPorts.add(port);
+  return port;
+}
+
+export function releasePort(port: number): void {
+  usedPorts.delete(port);
 }

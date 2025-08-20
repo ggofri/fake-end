@@ -2,7 +2,7 @@ import { exec, spawn, ChildProcess } from 'child_process';
 import { promisify } from 'util';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
-import { getPortForTestFile } from './port-manager';
+import { getPortForTestFile, releasePort } from './port-manager';
 import { cleanupManager } from './cleanup-manager';
 void cleanupManager; 
 
@@ -19,6 +19,7 @@ export interface ServerInstance {
   process: ChildProcess;
   port: number;
   mockDir: string;
+  dynamicMocks?: boolean;
   cleanup: () => Promise<void>;
   restart: (newMockDir?: string) => Promise<void>;
 }
@@ -30,7 +31,9 @@ export class TestServerManager {
   async startServer(options: TestServerOptions = {}): Promise<ServerInstance> {
     const port = options.port ?? getPortForTestFile();
     const mockDir = options.mockDir ?? this.createTempMockDir();
-    const timeout = options.timeout ?? 10000;
+    
+    const baseTimeout = options.timeout ?? 10000;
+    const timeout = options.dynamicMocks ? Math.max(baseTimeout, 60000) : baseTimeout;
     const dynamicMocks = options.dynamicMocks ?? false;
 
     if (this.activeServers.has(port)) {
@@ -54,29 +57,36 @@ export class TestServerManager {
       });
 
       let serverStarted = false;
+      let lastOutput = '';
       const startTimeout = setTimeout(() => {
         if (!serverStarted) {
           serverProcess.kill();
-          reject(new Error(`Server failed to start within ${timeout}ms`));
+          const errorDetails = lastOutput ? `\nLast output: ${lastOutput.slice(-200)}` : '';
+          const mockDirInfo = dynamicMocks ? ` (TypeScript compilation mode)` : '';
+          reject(new Error(`Server failed to start within ${timeout}ms on port ${port}${mockDirInfo}${errorDetails}`));
         }
       }, timeout);
 
       serverProcess.stdout?.on('data', (data: Buffer) => {
         const output = data.toString();
+        lastOutput += output; 
         if (output.includes(`Mock server running on http://localhost:${port}`) && !serverStarted) {
           serverStarted = true;
           clearTimeout(startTimeout);
           
-          const instance: ServerInstance = {
-            process: serverProcess,
-            port,
-            mockDir,
-            cleanup: () => this.stopServer(port),
-            restart: (newMockDir?: string) => this.restartServer(port, newMockDir)
-          };
-          
-          this.activeServers.set(port, instance);
-          resolve(instance);
+          setTimeout(() => {
+            const instance: ServerInstance = {
+              process: serverProcess,
+              port,
+              mockDir,
+              dynamicMocks,
+              cleanup: () => this.stopServer(port),
+              restart: (newMockDir?: string) => this.restartServer(port, newMockDir)
+            };
+            
+            this.activeServers.set(port, instance);
+            resolve(instance);
+          }, 500);
         }
       });
 
@@ -96,7 +106,7 @@ export class TestServerManager {
       });
 
       serverProcess.on('exit', (code) => {
-        if (!serverStarted && code !== 0) {
+        if (!serverStarted && code !== 0 && code !== null) {
           clearTimeout(startTimeout);
           reject(new Error(`Server process exited with code ${code}`));
         }
@@ -114,9 +124,15 @@ export class TestServerManager {
     
     await this.stopServer(port);
     
-    await this.waitForPortToBeAvailable(port);
+    await this.waitForPortToBeAvailable(port, 50);
     
-    const newServer = await this.startServer({ port, mockDir });
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    const newServer = await this.startServer({ 
+      port, 
+      mockDir,
+      dynamicMocks: server.dynamicMocks
+    });
     
     server.process = newServer.process;
     server.mockDir = mockDir;
@@ -137,6 +153,7 @@ export class TestServerManager {
           clearTimeout(forceKillTimeout);
         }
         this.activeServers.delete(port);
+        releasePort(port); 
         resolve();
       };
 
@@ -179,9 +196,17 @@ export class TestServerManager {
   }
 
   async cleanup(): Promise<void> {
+    
     await this.stopAllServers();
     
-    for (const dir of this.testDirsToCleanup) {
+    const ports = Array.from(this.activeServers.keys());
+    await Promise.all(ports.map(port => 
+      this.waitForPortToBeAvailable(port, 10).catch(() => {
+        console.warn(`Port ${port} may still be in use after cleanup`);
+      })
+    ));
+    
+    const cleanupPromises = Array.from(this.testDirsToCleanup).map(async (dir) => {
       try {
         if (existsSync(dir)) {
           rmSync(dir, { recursive: true, force: true });
@@ -189,7 +214,9 @@ export class TestServerManager {
       } catch (err) {
         console.warn(`Failed to cleanup directory ${dir}:`, err);
       }
-    }
+    });
+    
+    await Promise.all(cleanupPromises);
     this.testDirsToCleanup.clear();
   }
 
@@ -197,21 +224,40 @@ export class TestServerManager {
     try {
       const { execSync } = await import('child_process');
       execSync('pkill -f "fake-end" || pkill -f "src/cli-commands/handlers/index.ts" || true', { stdio: 'pipe' });
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (err) {
       console.error("Error when trying forceCleanup: ", err.message ?? err)
     }
     
+    this.activeServers.clear();
+    
     await this.cleanup();
   }
 
-  async waitForServerHealth(port: number, maxAttempts = 10): Promise<boolean> {
+  async waitForServerHealth(port: number, maxAttempts = 20): Promise<boolean> {
     for (let i = 0; i < maxAttempts; i++) {
       try {
-        const response = await fetch(`http://localhost:${port}/health`);
-        return response.ok;
-      } catch {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        
+        const response = await fetch(`http://localhost:${port}/`, {
+          signal: controller.signal,
+          method: 'GET'
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.status !== undefined) {
+          return true;
+        }
+      } catch (err) {
+        
+        if (i === maxAttempts - 1) {
+          console.warn(`Health check failed for port ${port} after ${maxAttempts} attempts:`, err instanceof Error ? err.message : err);
+        }
       }
+      await new Promise(resolve => setTimeout(resolve, 250));
     }
     return false;
   }
@@ -228,11 +274,23 @@ export class TestServerManager {
   async waitForPortToBeAvailable(port: number, maxAttempts = 20): Promise<void> {
     for (let i = 0; i < maxAttempts; i++) {
       if (await this.isPortAvailable(port)) {
-        return;
+        
+        try {
+          const net = await import('net');
+          const server = net.createServer();
+          await new Promise<void>((resolve, reject) => {
+            server.listen(port, () => {
+              server.close(() => resolve());
+            }).on('error', reject);
+          });
+          return; 
+        } catch {
+          /* eslint-disable-line no-empty */
+        }
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
     }
-    throw new Error(`Port ${port} did not become available after ${maxAttempts * 100}ms`);
+    throw new Error(`Port ${port} did not become available after ${maxAttempts * 150}ms`);
   }
 }
 

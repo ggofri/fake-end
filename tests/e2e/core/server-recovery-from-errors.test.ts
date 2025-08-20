@@ -1,4 +1,4 @@
-import { createTestContext, cleanupTestContext, createYamlMockFile, TestContext } from '../../utils';
+import { createTestContext, cleanupTestContext, createYamlMockFile, restartServerWithMocks, TestContext } from '../../utils';
 import { serverManager } from '../../utils';
 
 describe('SERVER_RECOVERY_FROM_ERRORS', () => {
@@ -29,10 +29,9 @@ describe('SERVER_RECOVERY_FROM_ERRORS', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'api.yaml', yamlContent);
-    
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir });
+    await restartServerWithMocks(context, {
+      'api.yaml': yamlContent
+    });
     
     const validResponse = await context.client.post('/api/robust', { valid: true });
     expect(validResponse.status).toBe(200);

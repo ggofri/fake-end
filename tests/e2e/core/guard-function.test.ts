@@ -1,4 +1,4 @@
-import { createTestContext, cleanupTestContext, createYamlMockFile, TestContext } from '../../utils';
+import { createTestContext, cleanupTestContext, createYamlMockFile, restartServerWithMocks, TestContext } from '../../utils';
 import { serverManager } from '../../utils';
 
 describe('GUARD_FUNCTION', () => {
@@ -41,8 +41,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'auth.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'auth.yaml': yamlContent });
     
     const response = await context.client.post('/auth', {
       role: 'admin',
@@ -80,8 +79,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'auth.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'auth.yaml': yamlContent });
     
     const response = await context.client.post('/auth', {
       role: 'user',
@@ -119,8 +117,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'status.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'status.yaml': yamlContent });
     
     const response = await context.client.post('/status', {
       status: 'active',
@@ -158,8 +155,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'filter.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'filter.yaml': yamlContent });
     
     const response = await context.client.post('/filter', {
       message: 'This is a spam message',
@@ -196,8 +192,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'check.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'check.yaml': yamlContent });
     
     const response = await context.client.post('/check', {
       apiKey: 'abc123',
@@ -235,8 +230,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'nested.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'nested.yaml': yamlContent });
     
     const response = await context.client.post('/nested', {
       user: {
@@ -284,8 +278,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'users.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'users.yaml': yamlContent });
     
     const response = await context.client.post('/users', {
       email: 'test@admin.com',
@@ -313,8 +306,7 @@ describe('GUARD_FUNCTION', () => {
       }
     ]);
     
-    serverManager.createMockFile(context.mockDir, 'normal.yaml', yamlContent);
-    await context.server.restart(context.mockDir);
+    await restartServerWithMocks(context, { 'normal.yaml': yamlContent });
     
     const response = await context.client.post('/normal', {
       data: 'test data'

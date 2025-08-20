@@ -27,6 +27,113 @@ export async function cleanupTestContext(context: TestContext): Promise<void> {
   await context.server.cleanup();
 }
 
+export async function createTypeScriptTestContext(options: {
+  port?: number;
+  mockDir?: string;
+  timeout?: number;
+} = {}): Promise<TestContext> {
+  return createTestContext({
+    ...options,
+    dynamicMocks: true,
+    timeout: options.timeout ?? 90000 
+  });
+}
+
+export async function createOptimizedTypeScriptTestContext(options: {
+  port?: number;
+  mockDir?: string;
+  timeout?: number;
+  preWarm?: boolean;
+} = {}): Promise<TestContext> {
+  const context = await createTestContext({
+    ...options,
+    dynamicMocks: true,
+    timeout: options.timeout ?? 90000
+  });
+  
+  if (options.preWarm !== false) {
+    const { writeFileSync } = await import('fs');
+    const { join } = await import('path');
+    
+    const warmupTs = `
+interface SimpleWarmup {
+  /** @mock "warmup" */
+  test: string;
+}
+
+// @mock
+export default SimpleWarmup;`;
+    
+    try {
+      writeFileSync(join(context.mockDir, 'warmup.get.ts'), warmupTs);
+      await context.server.restart(context.mockDir);
+      
+      await context.client.get('/warmup').catch(() => {
+        
+      });
+    } catch {
+      /* eslint-disable-line no-empty */
+    }
+  }
+  
+  return context;
+}
+
+export async function restartServerWithTypeScriptMocks(context: TestContext, tsFiles: Record<string, string>): Promise<void> {
+  
+  const { writeFileSync } = await import('fs');
+  const { join } = await import('path');
+  
+  for (const [fileName, content] of Object.entries(tsFiles)) {
+    writeFileSync(join(context.mockDir, fileName), content);
+  }
+  
+  await context.server.restart(context.mockDir);
+  
+  await new Promise(resolve => setTimeout(resolve, 2000)); 
+  
+  let isHealthy = await serverManager.waitForServerHealth(context.server.port, 60);
+  if (!isHealthy) {
+    
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    isHealthy = await serverManager.waitForServerHealth(context.server.port, 80);
+    if (!isHealthy) {
+      console.warn(`TypeScript health check failed for port ${context.server.port}, attempting final retry...`);
+      await new Promise(resolve => setTimeout(resolve, 8000));
+      isHealthy = await serverManager.waitForServerHealth(context.server.port, 100);
+      if (!isHealthy) {
+        throw new Error(`TypeScript server failed health check after restart on port ${context.server.port} after multiple attempts`);
+      }
+    }
+  }
+}
+
+export async function restartServerWithMocks(context: TestContext, mockFiles: Record<string, string>): Promise<void> {
+  
+  for (const [fileName, content] of Object.entries(mockFiles)) {
+    serverManager.createMockFile(context.mockDir, fileName, content);
+  }
+  
+  await context.server.restart(context.mockDir);
+  
+  await new Promise(resolve => setTimeout(resolve, 500)); 
+  
+  let isHealthy = await serverManager.waitForServerHealth(context.server.port, 30);
+  if (!isHealthy) {
+    
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    isHealthy = await serverManager.waitForServerHealth(context.server.port, 40);
+    if (!isHealthy) {
+      console.warn(`Health check failed for port ${context.server.port}, attempting final retry...`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      isHealthy = await serverManager.waitForServerHealth(context.server.port, 50);
+      if (!isHealthy) {
+        throw new Error(`Server failed health check after restart on port ${context.server.port} after multiple attempts`);
+      }
+    }
+  }
+}
+
 export function createYamlMockFile(endpoints: Array<{
   method: string;
   path: string;

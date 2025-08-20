@@ -1,11 +1,9 @@
-import { createTestContext, cleanupTestContext, TestContext } from '../../utils';
+import { createOptimizedTypeScriptTestContext, restartServerWithTypeScriptMocks, cleanupTestContext, TestContext } from '../../utils';
 import { serverManager } from '../../utils';
-import { writeFileSync } from 'fs';
-import { join } from 'path';
 
 describe('BODY_AWARE_MOCK_FUNCTIONS', () => {
   let context: TestContext;
-
+  
   afterEach(async () => {
     if (context) {
       await cleanupTestContext(context);
@@ -17,7 +15,7 @@ describe('BODY_AWARE_MOCK_FUNCTIONS', () => {
   });
 
   it('should generate mock data that accesses request body', async () => {
-    context = await createTestContext({ dynamicMocks: true });
+    context = await createOptimizedTypeScriptTestContext();
     
     const tsContent = `
 interface UserProfile {
@@ -37,11 +35,9 @@ interface UserProfile {
 // @mock
 export default UserProfile;`;
     
-    const tsFilePath = join(context.mockDir, 'user-profile.post.ts');
-    writeFileSync(tsFilePath, tsContent);
-    
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir, dynamicMocks: true });
+    await restartServerWithTypeScriptMocks(context, {
+      'user-profile.post.ts': tsContent
+    });
     
     const requestBody = {
       username: 'johndoe',
@@ -61,7 +57,7 @@ export default UserProfile;`;
   });
 
   it('should fallback gracefully when body is not provided', async () => {
-    context = await createTestContext({ dynamicMocks: true });
+    context = await createOptimizedTypeScriptTestContext();
     
     const tsContent = `
 interface UserProfile {
@@ -78,11 +74,9 @@ interface UserProfile {
 // @mock
 export default UserProfile;`;
     
-    const tsFilePath = join(context.mockDir, 'user-profile-fallback.post.ts');
-    writeFileSync(tsFilePath, tsContent);
-    
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir, dynamicMocks: true });
+    await restartServerWithTypeScriptMocks(context, {
+      'user-profile-fallback.post.ts': tsContent
+    });
     
     const response = await context.client.post('/user-profile-fallback', {});
     
@@ -95,7 +89,7 @@ export default UserProfile;`;
   });
 
   it('should work with complex body manipulation', async () => {
-    context = await createTestContext({ dynamicMocks: true });
+    context = await createOptimizedTypeScriptTestContext();
     
     const tsContent = `
 interface OrderSummary {
@@ -115,11 +109,9 @@ interface OrderSummary {
 // @mock
 export default OrderSummary;`;
     
-    const tsFilePath = join(context.mockDir, 'order-summary.post.ts');
-    writeFileSync(tsFilePath, tsContent);
-    
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir, dynamicMocks: true });
+    await restartServerWithTypeScriptMocks(context, {
+      'order-summary.post.ts': tsContent
+    });
     
     const requestBody = {
       orderId: 'ORDER-123',
@@ -144,7 +136,7 @@ export default OrderSummary;`;
   });
 
   it('should work alongside regular mock functions', async () => {
-    context = await createTestContext({ dynamicMocks: true });
+    context = await createOptimizedTypeScriptTestContext();
     
     const tsContent = `
 interface MixedResponse {
@@ -164,11 +156,9 @@ interface MixedResponse {
 // @mock
 export default MixedResponse;`;
     
-    const tsFilePath = join(context.mockDir, 'mixed-response.post.ts');
-    writeFileSync(tsFilePath, tsContent);
-    
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir, dynamicMocks: true });
+    await restartServerWithTypeScriptMocks(context, {
+      'mixed-response.post.ts': tsContent
+    });
     
     const requestBody = {
       username: 'testuser',

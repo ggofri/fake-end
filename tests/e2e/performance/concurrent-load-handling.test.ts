@@ -33,8 +33,7 @@ describe('CONCURRENT_LOAD_HANDLING', () => {
     
     serverManager.createMockFile(context.mockDir, 'api.yaml', yamlContent);
     
-    await context.server.cleanup();
-    context = await createTestContext({ mockDir: context.mockDir });
+    await context.server.restart();
     
     const requests = Array.from({ length: 20 }, () =>
       context.client.get('/api/concurrent')
