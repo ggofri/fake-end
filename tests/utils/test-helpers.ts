@@ -72,7 +72,7 @@ export default SimpleWarmup;`;
         
       });
     } catch {
-      /* eslint-disable-line no-empty */
+      console.error('Warmup failed');
     }
   }
   

@@ -68,6 +68,7 @@ describe('guard-processor', () => {
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
         { userId: 123, role: 'admin' },
+        {},
         ''
       );
     });
@@ -179,6 +180,7 @@ describe('guard-processor', () => {
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
         {},
+        {},
         ''
       );
     });
@@ -213,6 +215,7 @@ describe('guard-processor', () => {
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
         {},
+        {},
         ''
       );
     });
@@ -246,6 +249,7 @@ describe('guard-processor', () => {
 
       expect(mockExecuteGuard).toHaveBeenCalledWith(
         guardCondition,
+        {},
         {},
         ''
       );

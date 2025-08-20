@@ -159,7 +159,7 @@ export class GuardConditionGenerator {
     }
     
     suggestions.push({
-      condition: { field: 'valid', operator: 'equals', value: true },
+      condition: { field: 'query.valid', operator: 'equals', value: true },
       description: 'Generic validation flag',
       confidence: 'low'
     });

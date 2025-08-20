@@ -23,7 +23,7 @@ describe('guard-executor', () => {
   describe('executeGuard', () => {
     it('should return right when condition is true', async () => {
       const requestBody = { email: 'admin@test.com' };
-      const result = await executeGuard(mockGuard, requestBody, mockDir);
+      const result = await executeGuard(mockGuard, requestBody, {}, mockDir);
       
       expect(isRight(result)).toBe(true);
       if (isRight(result)) {
@@ -34,7 +34,7 @@ describe('guard-executor', () => {
 
     it('should return left when condition is false', async () => {
       const requestBody = { email: 'user@test.com' };
-      const result = await executeGuard(mockGuard, requestBody, mockDir);
+      const result = await executeGuard(mockGuard, requestBody, {}, mockDir);
       
       expect(isLeft(result)).toBe(true);
       if (isLeft(result)) {
@@ -54,7 +54,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Valid status' } }
       };
 
-      const result = await executeGuard(guard, { status: 'inactive' }, mockDir);
+      const result = await executeGuard(guard, { status: 'inactive' }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -69,7 +69,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'No error' } }
       };
 
-      const result = await executeGuard(guard, { message: 'This is an error message' }, mockDir);
+      const result = await executeGuard(guard, { message: 'This is an error message' }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -84,7 +84,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Regular access' } }
       };
 
-      const result = await executeGuard(guard, { tags: ['user', 'admin', 'editor'] }, mockDir);
+      const result = await executeGuard(guard, { tags: ['user', 'admin', 'editor'] }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -98,7 +98,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'User exists' } }
       };
 
-      const result = await executeGuard(guard, { userId: '123' }, mockDir);
+      const result = await executeGuard(guard, { userId: '123' }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -112,7 +112,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Not deleted' } }
       };
 
-      const result = await executeGuard(guard, { id: '123' }, mockDir);
+      const result = await executeGuard(guard, { id: '123' }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -127,7 +127,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Admin access' } }
       };
 
-      const result = await executeGuard(guard, { user: { role: 'admin', id: '123' } }, mockDir);
+      const result = await executeGuard(guard, { user: { role: 'admin', id: '123' } }, {}, mockDir);
       expect(isRight(result)).toBe(true);
     });
 
@@ -142,7 +142,7 @@ describe('guard-executor', () => {
         right: { status: 200, body: { message: 'Admin access' } }
       };
 
-      const result = await executeGuard(guard, { userId: '123' }, mockDir);
+      const result = await executeGuard(guard, { userId: '123' }, {}, mockDir);
       expect(isLeft(result)).toBe(true);
     });
   });

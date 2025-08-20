@@ -285,7 +285,7 @@ export class TestServerManager {
           });
           return; 
         } catch {
-          /* eslint-disable-line no-empty */
+          console.error('Port check failed');
         }
       }
       await new Promise(resolve => setTimeout(resolve, 150));

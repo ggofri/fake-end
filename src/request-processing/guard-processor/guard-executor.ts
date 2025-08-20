@@ -2,10 +2,21 @@ import { GuardFunction, GuardCondition, Either, left, right, isGuardInterfaceRes
 import { interfaceResolver } from '@/typescript-processing/utils/interface-resolver';
 import { generateMockFromInterface } from '@/typescript-processing/mock-generator/generators';
 
-function evaluateCondition(condition: GuardCondition, body: Record<string, unknown>): boolean {
+function evaluateCondition(condition: GuardCondition, body: Record<string, unknown>, query: Record<string, unknown> = {}): boolean {
   const { field, operator, value } = condition;
+  
+  if (field.startsWith('query.')) {
+    const QUERY_PREFIX_LENGTH = 6;
+    const queryField = field.substring(QUERY_PREFIX_LENGTH);
+    const fieldValue = getNestedValue(query, queryField);
+    return evaluateFieldCondition(operator, fieldValue, value);
+  }
+  
   const fieldValue = getNestedValue(body, field);
+  return evaluateFieldCondition(operator, fieldValue, value);
+}
 
+function evaluateFieldCondition(operator: string, fieldValue: unknown, value: unknown): boolean {
   if (operator === 'equals') {
     return fieldValue === value;
   }
@@ -52,9 +63,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export async function executeGuard(
   guard: GuardFunction,
   requestBody: Record<string, unknown>,
+  queryParams: Record<string, unknown>,
   mockDir: string
 ): Promise<Either<{ status: number; body?: unknown }, { status: number; body?: unknown }>> {
-  const conditionResult = evaluateCondition(guard.condition, requestBody);
+  const conditionResult = evaluateCondition(guard.condition, requestBody, queryParams);
   
   if (conditionResult) {
     const resolvedResponse = await resolveGuardResponse(guard.right, mockDir, requestBody);
