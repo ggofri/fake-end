@@ -43,7 +43,7 @@ jobs:
       - name: Bump version
         id: version
         run: |
-          NEW_VERSION=$(bun pm version --${{ github.event.inputs.version }} --no-git-tag-version)
+          NEW_VERSION=$(bun pm version ${{ github.event.inputs.version }} --no-git-tag-version)
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
